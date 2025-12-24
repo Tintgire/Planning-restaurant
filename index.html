@@ -13,7 +13,6 @@
             background-color: #fff7ed;
         }
 
-        /* Couleurs de fond des barres de titre */
         .bg-gerant {
             background-color: #4338ca !important;
         }
@@ -26,7 +25,6 @@
             background-color: #d97706 !important;
         }
 
-        /* Styles spécifiques pour les noms */
         .name-cell-gerant {
             background-color: #e0e7ff !important;
             color: #3730a3 !important;
@@ -105,7 +103,6 @@
             padding-left: 12px;
         }
 
-        /* Centrage strict de la colonne Total */
         .total-cell {
             background-color: #fef2f2;
             display: flex;
@@ -124,6 +121,7 @@
             font-weight: 800;
             line-height: 1;
             color: #1e293b;
+            z-index: 10;
         }
 
         .midi-time {
@@ -136,7 +134,6 @@
             text-align: right;
         }
 
-        /* Style pour le texte REPOS */
         .repos-tag {
             color: #064e3b;
             font-style: italic;
@@ -145,18 +142,17 @@
             font-size: 0.6rem;
         }
 
-        /* Style pour la case REPOS complète */
+        /* Case REPOS complète */
         .full-repos {
             background-color: #bbf7d0 !important;
-            border-right-color: #86efac;
         }
 
-        /* Demi-journée de repos verticale (Midi en repos = Moitié Gauche remplie) */
+        /* Remplissage VERTICAL (Moitié Gauche pour Repos Midi) */
         .repos-midi {
             background: linear-gradient(to right, #bbf7d0 50%, transparent 50%);
         }
 
-        /* Demi-journée de repos verticale (Soir en repos = Moitié Droite remplie) */
+        /* Remplissage VERTICAL (Moitié Droite pour Repos Soir) */
         .repos-soir {
             background: linear-gradient(to right, transparent 50%, #bbf7d0 50%);
         }
@@ -219,19 +215,23 @@
                 border-color: black !important;
             }
 
+            /* Ajout de la compatibilité standard pour l'impression des couleurs */
             .full-repos {
                 background-color: #bbf7d0 !important;
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .repos-midi {
                 background: linear-gradient(to right, #bbf7d0 50%, transparent 50%) !important;
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .repos-soir {
                 background: linear-gradient(to right, transparent 50%, #bbf7d0 50%) !important;
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
@@ -310,8 +310,6 @@
     </main>
 
     <script>
-        document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('fr-FR');
-
         const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
         const shiftPatterns = {
             cuisine: [
@@ -442,7 +440,6 @@
                             const midiHtml = d.midi === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.midi;
                             const soirHtml = d.soir === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.soir;
 
-                            // Logique de remplissage vertical (gauche pour midi, droite pour soir)
                             let partialClass = '';
                             if (d.midi === 'REPOS') partialClass = 'repos-midi';
                             else if (d.soir === 'REPOS') partialClass = 'repos-soir';
@@ -491,7 +488,11 @@
             cChart.update();
         }
 
-        window.onload = () => { initCharts(); generateNewCycle(); };
+        window.onload = () => {
+            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('fr-FR');
+            initCharts();
+            generateNewCycle();
+        };
     </script>
 </body>
 
