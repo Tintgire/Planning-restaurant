@@ -13,6 +13,44 @@
             background-color: #fff7ed;
         }
 
+        /* Couleurs de fond des barres de titre */
+        .bg-gerant {
+            background-color: #4338ca !important;
+        }
+
+        .bg-salle {
+            background-color: #059669 !important;
+        }
+
+        .bg-cuisine {
+            background-color: #d97706 !important;
+        }
+
+        /* Styles spécifiques pour les noms */
+        .name-cell-gerant {
+            background-color: #e0e7ff !important;
+            color: #3730a3 !important;
+            border-left: 4px solid #4338ca !important;
+        }
+
+        .name-cell-adjoint {
+            background-color: #eff6ff !important;
+            color: #1e40af !important;
+            border-left: 4px solid #3b82f6 !important;
+        }
+
+        .name-cell-salle {
+            background-color: #d1fae5 !important;
+            color: #065f46 !important;
+            border-left: 4px solid #059669 !important;
+        }
+
+        .name-cell-cuisine {
+            background-color: #fef3c7 !important;
+            color: #92400e !important;
+            border-left: 4px solid #d97706 !important;
+        }
+
         .dept-block {
             margin-bottom: 2.5rem;
             background: white;
@@ -24,7 +62,7 @@
 
         .planning-grid {
             display: grid;
-            grid-template-columns: 160px repeat(7, minmax(110px, 1fr)) 80px;
+            grid-template-columns: 180px repeat(7, minmax(110px, 1fr)) 80px;
         }
 
         .grid-header {
@@ -38,6 +76,9 @@
             letter-spacing: 0.05em;
             color: #475569;
             border-right: 1px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .grid-header:last-child {
@@ -58,29 +99,24 @@
         }
 
         .name-cell {
-            background-color: #fcfcfc;
             font-weight: 700;
             font-size: 0.7rem;
             justify-content: center;
-            padding-left: 15px;
-            color: #1e293b;
-            border-right: 1px solid #cbd5e1;
+            padding-left: 12px;
         }
 
-        .name-cell-leader {
-            background-color: #eff6ff !important;
-            color: #1e40af !important;
-            border-left: 4px solid #3b82f6;
-        }
-
+        /* Centrage strict de la colonne Total */
         .total-cell {
             background-color: #fef2f2;
+            display: flex;
             justify-content: center;
             align-items: center;
+            text-align: center;
             font-weight: 900;
             color: #b91c1c;
             font-size: 0.75rem;
             border-right: none;
+            width: 100%;
         }
 
         .service-label {
@@ -100,19 +136,29 @@
             text-align: right;
         }
 
-        /* Repos en Vert */
+        /* Style pour le texte REPOS */
         .repos-tag {
-            color: #059669;
-            /* Vert émeraude */
+            color: #064e3b;
             font-style: italic;
-            font-weight: 800;
+            font-weight: 900;
             text-transform: uppercase;
             font-size: 0.6rem;
         }
 
-        /* Fond pour repos complet */
+        /* Style pour la case REPOS complète */
         .full-repos {
-            background-color: #d1fae5 !important;
+            background-color: #bbf7d0 !important;
+            border-right-color: #86efac;
+        }
+
+        /* Demi-journée de repos verticale (Midi en repos = Moitié Gauche remplie) */
+        .repos-midi {
+            background: linear-gradient(to right, #bbf7d0 50%, transparent 50%);
+        }
+
+        /* Demi-journée de repos verticale (Soir en repos = Moitié Droite remplie) */
+        .repos-soir {
+            background: linear-gradient(to right, transparent 50%, #bbf7d0 50%);
         }
 
         .dept-title-bar {
@@ -125,10 +171,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-        }
-
-        .grid-row-last {
-            border-bottom: none !important;
         }
 
         @media print {
@@ -144,16 +186,8 @@
 
             nav,
             .no-print,
-            #hoursChart,
-            #coverageChart,
             .charts-container {
                 display: none !important;
-            }
-
-            main {
-                margin: 0 !important;
-                padding: 0 !important;
-                max-width: 100% !important;
             }
 
             .dept-block {
@@ -186,32 +220,19 @@
             }
 
             .full-repos {
-                background-color: #d1fae5 !important;
+                background-color: #bbf7d0 !important;
                 -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
 
-            .repos-tag {
-                color: #065f46 !important;
+            .repos-midi {
+                background: linear-gradient(to right, #bbf7d0 50%, transparent 50%) !important;
                 -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .repos-soir {
+                background: linear-gradient(to right, transparent 50%, #bbf7d0 50%) !important;
+                -webkit-print-color-adjust: exact;
             }
-        }
-
-        .animate-section {
-            animation: fadeIn 0.4s ease-out forwards;
         }
     </style>
 </head>
@@ -252,7 +273,7 @@
                 </p>
             </div>
 
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap items-center gap-3">
                 <button onclick="printDept('encadrement')"
                     class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
                     <span>🖨️</span> IMPRIMER GÉRANT
@@ -265,11 +286,12 @@
                     class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
                     <span>🖨️</span> IMPRIMER CUISINE
                 </button>
-            </div>
 
-            <div class="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 text-center">
-                <p class="text-[9px] font-black text-gray-400 uppercase">Aujourd'hui</p>
-                <p id="today-display" class="text-xs font-bold text-gray-800">--/--/----</p>
+                <div
+                    class="flex flex-col items-center bg-white border-2 border-orange-100 px-4 py-1.5 rounded-xl shadow-sm">
+                    <span class="text-[8px] font-black text-orange-400 uppercase tracking-widest">Aujourd'hui</span>
+                    <span id="current-date-display" class="text-[11px] font-bold text-gray-700">--/--/----</span>
+                </div>
             </div>
         </div>
 
@@ -278,35 +300,33 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 charts-container">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 class="text-xs font-black text-gray-400 uppercase mb-4">Volume Horaire Hebdomadaire</h3>
-                <div style="height: 200px;"><canvas id="hoursChart"></canvas></div>
+                <div style="height: 300px;"><canvas id="hoursChart"></canvas></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 class="text-xs font-black text-gray-400 uppercase mb-4">Taux de Présence</h3>
-                <div style="height: 200px;"><canvas id="coverageChart"></canvas></div>
+                <div style="height: 300px;"><canvas id="coverageChart"></canvas></div>
             </div>
         </div>
     </main>
 
     <script>
-        const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('fr-FR');
 
+        const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
         const shiftPatterns = {
             cuisine: [
                 { midi: '11h-14h30', soir: '18h-21h30' },
                 { midi: '09h-15h', soir: 'REPOS' },
-                { midi: 'REPOS', soir: '18h-23h' },
-                { midi: '11h-14h', soir: '18h-22h' }
+                { midi: 'REPOS', soir: '18h-23h' }
             ],
             salle: [
                 { midi: '11h30-15h', soir: '19h-23h' },
                 { midi: '12h-15h', soir: 'REPOS' },
-                { midi: 'REPOS', soir: '18h30-00h' },
-                { midi: '11h-18h', soir: 'REPOS' }
+                { midi: 'REPOS', soir: '18h30-00h' }
             ],
             encadrement: [
                 { midi: '09h-15h', soir: '18h-21h' },
-                { midi: '11h-15h', soir: '18h-23h' },
-                { midi: '10h-22h', soir: 'REPOS' }
+                { midi: '11h-22h', soir: 'REPOS' }
             ]
         };
 
@@ -314,57 +334,6 @@
         let scheduleData = { 1: {}, 2: {} };
         let dates = { s1: [], s2: [] };
         let hChart, cChart;
-
-        function formatDate(d) { return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }); }
-
-        function getNextMonday() {
-            const today = new Date();
-            const day = today.getDay();
-            const dist = (day === 0) ? 1 : 8 - day;
-            const res = new Date(today);
-            res.setDate(today.getDate() + dist);
-            res.setHours(0, 0, 0, 0);
-            return res;
-        }
-
-        function generateNewCycle() {
-            const mondayS1 = getNextMonday();
-            const mondayS2 = new Date(mondayS1);
-            mondayS2.setDate(mondayS1.getDate() + 7);
-
-            dates.s1 = [formatDate(mondayS1), formatDate(new Date(mondayS1.getTime() + 6 * 86400000))];
-            dates.s2 = [formatDate(mondayS2), formatDate(new Date(mondayS2.getTime() + 6 * 86400000))];
-
-            document.getElementById('today-display').innerText = new Date().toLocaleDateString('fr-FR');
-
-            const staffGroups = {
-                encadrement: [{ id: 'GÉRANT 1', hours: 42 }, { id: 'GÉRANT 2', hours: 39 }],
-                salle: Array.from({ length: 8 }, (_, i) => ({ id: i < 3 ? `LEADER SALLE ${i + 1}` : `SALLE ${i + 1}`, hours: 35 })),
-                cuisine: Array.from({ length: 8 }, (_, i) => ({ id: `CUISINE ${i + 1}`, hours: 35 }))
-            };
-
-            [1, 2].forEach(w => {
-                Object.keys(staffGroups).forEach(dept => {
-                    scheduleData[w][dept] = staffGroups[dept].map(p => {
-                        const reposDays = [];
-                        while (reposDays.length < 2) {
-                            const r = Math.floor(Math.random() * 7);
-                            if (!reposDays.includes(r)) reposDays.push(r);
-                        }
-                        return {
-                            ...p,
-                            days: days.map((_, i) => {
-                                if (reposDays.includes(i)) return 'REPOS';
-                                const patterns = shiftPatterns[dept];
-                                return patterns[Math.floor(Math.random() * patterns.length)];
-                            })
-                        };
-                    });
-                });
-            });
-
-            setWeek(1);
-        }
 
         function setWeek(w) {
             currentWeek = w;
@@ -378,58 +347,113 @@
             updateCharts();
         }
 
+        function generateNewCycle() {
+            const today = new Date();
+            const nextMon = new Date(today);
+            nextMon.setDate(today.getDate() + ((1 + 7 - today.getDay()) % 7 || 7));
+            const monS1 = new Date(nextMon);
+            const monS2 = new Date(monS1); monS2.setDate(monS1.getDate() + 7);
+            const fmt = (d) => d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+            dates.s1 = [fmt(monS1), fmt(new Date(monS1.getTime() + 6 * 86400000))];
+            dates.s2 = [fmt(monS2), fmt(new Date(monS2.getTime() + 6 * 86400000))];
+
+            const staff = {
+                encadrement: [
+                    { id: 'Sophie', hours: 42, role: 'gerant' },
+                    { id: 'Jean-Marc', hours: 39, role: 'gerant' }
+                ],
+                salle: [
+                    { id: 'Bouquet Alexis', hours: 39, role: 'adjoint' },
+                    { id: 'Treuillard Déborah', hours: 39, role: 'adjoint' },
+                    { id: 'Akbari Ibrahim', hours: 39, role: 'adjoint' },
+                    { id: 'Moura Ana', hours: 35 },
+                    { id: 'Picquet Zélie', hours: 35 },
+                    { id: 'Legrand Naomie', hours: 35 },
+                    { id: 'Arab Romaissa', hours: 35 },
+                    { id: 'Rahmouni Cenne', hours: 35 }
+                ],
+                cuisine: [
+                    { id: 'Kebe Mahamadou', hours: 35 },
+                    { id: 'Nazari Mojtaba', hours: 35 },
+                    { id: 'Faieq Hussain', hours: 35 },
+                    { id: 'Gory Mahamadou', hours: 35 },
+                    { id: 'Khan Sidra', hours: 35 },
+                    { id: 'Daniel Corentin', hours: 35 }
+                ]
+            };
+
+            [1, 2].forEach(w => {
+                Object.keys(staff).forEach(dept => {
+                    scheduleData[w][dept] = staff[dept].map(p => {
+                        const repos = [];
+                        while (repos.length < 2) {
+                            let r = Math.floor(Math.random() * 7);
+                            if (!repos.includes(r)) repos.push(r);
+                        }
+                        return {
+                            ...p,
+                            days: days.map((_, i) => {
+                                if (repos.includes(i)) return 'REPOS';
+                                const opts = shiftPatterns[p.role === 'adjoint' ? 'salle' : dept];
+                                return opts[Math.floor(Math.random() * opts.length)];
+                            })
+                        };
+                    });
+                });
+            });
+            setWeek(1);
+        }
+
         function renderPlanning() {
             const container = document.getElementById('planning-sections');
             container.innerHTML = '';
-
             const data = scheduleData[currentWeek];
-            const depts = [
-                { id: 'encadrement', label: 'Gérant', color: 'bg-slate-800', emoji: '👔' },
-                { id: 'salle', label: 'Salle', color: 'bg-red-600', emoji: '🍽️' },
-                { id: 'cuisine', label: 'Cuisine', color: 'bg-orange-600', emoji: '👨‍🍳' }
+            const configs = [
+                { id: 'encadrement', label: '👔Gérant', color: 'bg-gerant', nameStyle: 'name-cell-gerant' },
+                { id: 'salle', label: '🍽️Salle', color: 'bg-salle', nameStyle: 'name-cell-salle' },
+                { id: 'cuisine', label: '👨‍🍳Cuisine', color: 'bg-cuisine', nameStyle: 'name-cell-cuisine' }
             ];
 
-            depts.forEach(dept => {
+            configs.forEach(conf => {
                 const block = document.createElement('div');
-                block.className = `dept-block animate-section`;
-                block.id = `block-${dept.id}`;
+                block.className = `dept-block`;
+                block.id = `block-${conf.id}`;
 
                 let html = `
-                    <div class="dept-title-bar ${dept.color}">
-                        <span class="text-lg">${dept.emoji}</span>
-                        ${dept.label} <span class="ml-auto text-[10px] opacity-70">S${currentWeek}</span>
+                    <div class="dept-title-bar ${conf.color}">
+                        ${conf.label}
                     </div>
                     <div class="planning-grid">
                         <div class="grid-header">Nom</div>
                         ${days.map(d => `<div class="grid-header">${d.substring(0, 3)}</div>`).join('')}
-                        <div class="grid-header" style="border-right: none;">Hrs</div>
+                        <div class="grid-header" style="border:none">Total</div>
                 `;
 
-                data[dept.id].forEach((p, idx) => {
-                    const isLast = idx === data[dept.id].length - 1;
-                    const rowClass = isLast ? 'grid-row-last' : '';
-                    const isLeader = (dept.id === 'salle' && idx < 3);
-                    const leaderClass = isLeader ? 'name-cell-leader' : '';
+                data[conf.id].forEach(p => {
+                    const isAdj = p.role === 'adjoint';
+                    const currentNameStyle = isAdj ? 'name-cell-adjoint' : conf.nameStyle;
 
-                    html += `<div class="name-cell ${rowClass} ${leaderClass}">${p.id}</div>`;
+                    html += `<div class="name-cell ${currentNameStyle}">${p.id}</div>`;
 
-                    p.days.forEach((d) => {
+                    p.days.forEach(d => {
                         if (d === 'REPOS') {
-                            html += `
-                                <div class="grid-cell full-repos ${rowClass}">
-                                    <div class="repos-tag midi-time">REPOS</div>
-                                    <div class="repos-tag soir-time">REPOS</div>
-                                </div>`;
+                            html += `<div class="grid-cell full-repos"><div class="repos-tag midi-time">REPOS</div><div class="repos-tag soir-time">REPOS</div></div>`;
                         } else {
-                            html += `
-                                <div class="grid-cell ${rowClass}">
-                                    <div class="service-label midi-time">${d.midi === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.midi}</div>
-                                    <div class="service-label soir-time">${d.soir === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.soir}</div>
-                                </div>`;
+                            const midiHtml = d.midi === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.midi;
+                            const soirHtml = d.soir === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.soir;
+
+                            // Logique de remplissage vertical (gauche pour midi, droite pour soir)
+                            let partialClass = '';
+                            if (d.midi === 'REPOS') partialClass = 'repos-midi';
+                            else if (d.soir === 'REPOS') partialClass = 'repos-soir';
+
+                            html += `<div class="grid-cell ${partialClass}">
+                                        <div class="service-label midi-time">${midiHtml}</div>
+                                        <div class="service-label soir-time">${soirHtml}</div>
+                                     </div>`;
                         }
                     });
-
-                    html += `<div class="total-cell ${rowClass}">${p.hours}h</div>`;
+                    html += `<div class="total-cell"><span>${p.hours}h</span></div>`;
                 });
 
                 html += `</div>`;
@@ -438,38 +462,32 @@
             });
         }
 
-        function printDept(deptId) {
+        function printDept(id) {
             document.querySelectorAll('.dept-block').forEach(b => b.classList.remove('print-active'));
-            const target = document.getElementById(`block-${deptId}`);
-            if (target) {
-                target.classList.add('print-active');
-                window.print();
-            }
+            document.getElementById(`block-${id}`).classList.add('print-active');
+            window.print();
         }
 
         function initCharts() {
-            const hCtx = document.getElementById('hoursChart').getContext('2d');
-            hChart = new Chart(hCtx, {
+            hChart = new Chart(document.getElementById('hoursChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Heures', backgroundColor: '#b91c1c', borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { font: { size: 9, weight: 'bold' } } } } }
+                data: { labels: [], datasets: [{ backgroundColor: '#ef4444', borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-            const cCtx = document.getElementById('coverageChart').getContext('2d');
-            cChart = new Chart(cCtx, {
+            cChart = new Chart(document.getElementById('coverageChart'), {
                 type: 'line',
-                data: { labels: days, datasets: [{ label: 'Staff', borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#16a34a' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9, weight: 'bold' } } }, x: { ticks: { font: { size: 9 } } } } }
+                data: { labels: days, datasets: [{ borderColor: '#16a34a', tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
         function updateCharts() {
             const data = scheduleData[currentWeek];
-            const all = [...(data.encadrement || []), ...(data.salle || []), ...(data.cuisine || [])];
+            const all = [...data.encadrement, ...data.salle, ...data.cuisine];
             hChart.data.labels = all.map(p => p.id);
             hChart.data.datasets[0].data = all.map(p => p.hours);
             hChart.update();
-            const coverage = days.map((_, i) => all.filter(p => p.days[i] !== 'REPOS').length);
-            cChart.data.datasets[0].data = coverage;
+            cChart.data.datasets[0].data = days.map((_, i) => all.filter(p => p.days[i] !== 'REPOS').length);
             cChart.update();
         }
 
