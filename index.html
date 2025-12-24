@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Del Arte - Planning Hebdomadaire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: #fff7ed;
+        }
+
+        .dept-block {
+            margin-bottom: 2.5rem;
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #d1d5db;
+        }
+
+        .planning-grid {
+            display: grid;
+            grid-template-columns: 160px repeat(7, minmax(110px, 1fr)) 80px;
+        }
+
+        .grid-header {
+            background-color: #f1f5f9;
+            border-bottom: 2px solid #cbd5e1;
+            padding: 8px 4px;
+            font-weight: 800;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 0.05em;
+            color: #475569;
+            border-right: 1px solid #cbd5e1;
+        }
+
+        .grid-header:last-child {
+            border-right: none;
+        }
+
+        .grid-cell,
+        .name-cell,
+        .total-cell {
+            border-bottom: 2px solid #e2e8f0;
+            border-right: 1px solid #cbd5e1;
+            min-height: 50px;
+            padding: 4px 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .name-cell {
+            background-color: #fcfcfc;
+            font-weight: 700;
+            font-size: 0.7rem;
+            justify-content: center;
+            padding-left: 15px;
+            color: #1e293b;
+            border-right: 1px solid #cbd5e1;
+        }
+
+        .name-cell-leader {
+            background-color: #eff6ff !important;
+            color: #1e40af !important;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .total-cell {
+            background-color: #fef2f2;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            color: #b91c1c;
+            font-size: 0.75rem;
+            border-right: none;
+        }
+
+        .service-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            line-height: 1;
+            color: #1e293b;
+        }
+
+        .midi-time {
+            align-self: flex-start;
+            text-align: left;
+        }
+
+        .soir-time {
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        /* Repos en Vert */
+        .repos-tag {
+            color: #059669;
+            /* Vert émeraude */
+            font-style: italic;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.6rem;
+        }
+
+        /* Fond pour repos complet */
+        .full-repos {
+            background-color: #d1fae5 !important;
+        }
+
+        .dept-title-bar {
+            padding: 10px 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .grid-row-last {
+            border-bottom: none !important;
+        }
+
+        @media print {
+            @page {
+                size: landscape;
+                margin: 1cm;
+            }
+
+            body {
+                background-color: white !important;
+                padding: 0 !important;
+            }
+
+            nav,
+            .no-print,
+            #hoursChart,
+            #coverageChart,
+            .charts-container {
+                display: none !important;
+            }
+
+            main {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            .dept-block {
+                box-shadow: none !important;
+                border: 2px solid black !important;
+                margin-bottom: 0 !important;
+                display: none;
+            }
+
+            .print-active {
+                display: block !important;
+            }
+
+            .dept-title-bar {
+                color: black !important;
+                border-bottom: 2px solid black !important;
+                background: none !important;
+            }
+
+            .grid-header {
+                background-color: #eee !important;
+                border-color: black !important;
+                color: black !important;
+            }
+
+            .grid-cell,
+            .name-cell,
+            .total-cell {
+                border-color: black !important;
+            }
+
+            .full-repos {
+                background-color: #d1fae5 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .repos-tag {
+                color: #065f46 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-section {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <nav class="bg-white border-b-4 border-red-600 shadow-sm sticky top-0 z-50">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">🍕</span>
+                <div>
+                    <h1 class="text-xl font-black text-red-700 tracking-tighter">DEL ARTE</h1>
+                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Planning Hebdomadaire</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex bg-gray-100 p-1 rounded-lg">
+                    <button onclick="setWeek(1)" id="btn-w1"
+                        class="px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600">S1</button>
+                    <button onclick="setWeek(2)" id="btn-w2"
+                        class="px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600">S2</button>
+                </div>
+                <button onclick="generateNewCycle()"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-black shadow-lg shadow-red-100 flex items-center gap-2 active:scale-95 transition-all">
+                    <span>🔄</span> RÉGÉNÉRER
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[1600px] mx-auto px-6 mt-6">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 no-print">
+            <div>
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight">Vue Opérationnelle</h2>
+                <p class="text-xs text-gray-500 font-medium mt-1">
+                    Période : <span id="kpi-dates" class="text-red-600 font-bold">-- au --</span>
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <button onclick="printDept('encadrement')"
+                    class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
+                    <span>🖨️</span> IMPRIMER GÉRANT
+                </button>
+                <button onclick="printDept('salle')"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
+                    <span>🖨️</span> IMPRIMER SALLE
+                </button>
+                <button onclick="printDept('cuisine')"
+                    class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
+                    <span>🖨️</span> IMPRIMER CUISINE
+                </button>
+            </div>
+
+            <div class="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 text-center">
+                <p class="text-[9px] font-black text-gray-400 uppercase">Aujourd'hui</p>
+                <p id="today-display" class="text-xs font-bold text-gray-800">--/--/----</p>
+            </div>
+        </div>
+
+        <div id="planning-sections"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 charts-container">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-xs font-black text-gray-400 uppercase mb-4">Volume Horaire Hebdomadaire</h3>
+                <div style="height: 200px;"><canvas id="hoursChart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 class="text-xs font-black text-gray-400 uppercase mb-4">Taux de Présence</h3>
+                <div style="height: 200px;"><canvas id="coverageChart"></canvas></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+
+        const shiftPatterns = {
+            cuisine: [
+                { midi: '11h-14h30', soir: '18h-21h30' },
+                { midi: '09h-15h', soir: 'REPOS' },
+                { midi: 'REPOS', soir: '18h-23h' },
+                { midi: '11h-14h', soir: '18h-22h' }
+            ],
+            salle: [
+                { midi: '11h30-15h', soir: '19h-23h' },
+                { midi: '12h-15h', soir: 'REPOS' },
+                { midi: 'REPOS', soir: '18h30-00h' },
+                { midi: '11h-18h', soir: 'REPOS' }
+            ],
+            encadrement: [
+                { midi: '09h-15h', soir: '18h-21h' },
+                { midi: '11h-15h', soir: '18h-23h' },
+                { midi: '10h-22h', soir: 'REPOS' }
+            ]
+        };
+
+        let currentWeek = 1;
+        let scheduleData = { 1: {}, 2: {} };
+        let dates = { s1: [], s2: [] };
+        let hChart, cChart;
+
+        function formatDate(d) { return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }); }
+
+        function getNextMonday() {
+            const today = new Date();
+            const day = today.getDay();
+            const dist = (day === 0) ? 1 : 8 - day;
+            const res = new Date(today);
+            res.setDate(today.getDate() + dist);
+            res.setHours(0, 0, 0, 0);
+            return res;
+        }
+
+        function generateNewCycle() {
+            const mondayS1 = getNextMonday();
+            const mondayS2 = new Date(mondayS1);
+            mondayS2.setDate(mondayS1.getDate() + 7);
+
+            dates.s1 = [formatDate(mondayS1), formatDate(new Date(mondayS1.getTime() + 6 * 86400000))];
+            dates.s2 = [formatDate(mondayS2), formatDate(new Date(mondayS2.getTime() + 6 * 86400000))];
+
+            document.getElementById('today-display').innerText = new Date().toLocaleDateString('fr-FR');
+
+            const staffGroups = {
+                encadrement: [{ id: 'GÉRANT 1', hours: 42 }, { id: 'GÉRANT 2', hours: 39 }],
+                salle: Array.from({ length: 8 }, (_, i) => ({ id: i < 3 ? `LEADER SALLE ${i + 1}` : `SALLE ${i + 1}`, hours: 35 })),
+                cuisine: Array.from({ length: 8 }, (_, i) => ({ id: `CUISINE ${i + 1}`, hours: 35 }))
+            };
+
+            [1, 2].forEach(w => {
+                Object.keys(staffGroups).forEach(dept => {
+                    scheduleData[w][dept] = staffGroups[dept].map(p => {
+                        const reposDays = [];
+                        while (reposDays.length < 2) {
+                            const r = Math.floor(Math.random() * 7);
+                            if (!reposDays.includes(r)) reposDays.push(r);
+                        }
+                        return {
+                            ...p,
+                            days: days.map((_, i) => {
+                                if (reposDays.includes(i)) return 'REPOS';
+                                const patterns = shiftPatterns[dept];
+                                return patterns[Math.floor(Math.random() * patterns.length)];
+                            })
+                        };
+                    });
+                });
+            });
+
+            setWeek(1);
+        }
+
+        function setWeek(w) {
+            currentWeek = w;
+            const active = "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600";
+            const inactive = "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
+            document.getElementById('btn-w1').className = (w === 1) ? active : inactive;
+            document.getElementById('btn-w2').className = (w === 2) ? active : inactive;
+            const dRange = (w === 1) ? dates.s1 : dates.s2;
+            document.getElementById('kpi-dates').innerText = `${dRange[0]} au ${dRange[1]}`;
+            renderPlanning();
+            updateCharts();
+        }
+
+        function renderPlanning() {
+            const container = document.getElementById('planning-sections');
+            container.innerHTML = '';
+
+            const data = scheduleData[currentWeek];
+            const depts = [
+                { id: 'encadrement', label: 'Gérant', color: 'bg-slate-800', emoji: '👔' },
+                { id: 'salle', label: 'Salle', color: 'bg-red-600', emoji: '🍽️' },
+                { id: 'cuisine', label: 'Cuisine', color: 'bg-orange-600', emoji: '👨‍🍳' }
+            ];
+
+            depts.forEach(dept => {
+                const block = document.createElement('div');
+                block.className = `dept-block animate-section`;
+                block.id = `block-${dept.id}`;
+
+                let html = `
+                    <div class="dept-title-bar ${dept.color}">
+                        <span class="text-lg">${dept.emoji}</span>
+                        ${dept.label} <span class="ml-auto text-[10px] opacity-70">S${currentWeek}</span>
+                    </div>
+                    <div class="planning-grid">
+                        <div class="grid-header">Nom</div>
+                        ${days.map(d => `<div class="grid-header">${d.substring(0, 3)}</div>`).join('')}
+                        <div class="grid-header" style="border-right: none;">Hrs</div>
+                `;
+
+                data[dept.id].forEach((p, idx) => {
+                    const isLast = idx === data[dept.id].length - 1;
+                    const rowClass = isLast ? 'grid-row-last' : '';
+                    const isLeader = (dept.id === 'salle' && idx < 3);
+                    const leaderClass = isLeader ? 'name-cell-leader' : '';
+
+                    html += `<div class="name-cell ${rowClass} ${leaderClass}">${p.id}</div>`;
+
+                    p.days.forEach((d) => {
+                        if (d === 'REPOS') {
+                            html += `
+                                <div class="grid-cell full-repos ${rowClass}">
+                                    <div class="repos-tag midi-time">REPOS</div>
+                                    <div class="repos-tag soir-time">REPOS</div>
+                                </div>`;
+                        } else {
+                            html += `
+                                <div class="grid-cell ${rowClass}">
+                                    <div class="service-label midi-time">${d.midi === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.midi}</div>
+                                    <div class="service-label soir-time">${d.soir === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.soir}</div>
+                                </div>`;
+                        }
+                    });
+
+                    html += `<div class="total-cell ${rowClass}">${p.hours}h</div>`;
+                });
+
+                html += `</div>`;
+                block.innerHTML = html;
+                container.appendChild(block);
+            });
+        }
+
+        function printDept(deptId) {
+            document.querySelectorAll('.dept-block').forEach(b => b.classList.remove('print-active'));
+            const target = document.getElementById(`block-${deptId}`);
+            if (target) {
+                target.classList.add('print-active');
+                window.print();
+            }
+        }
+
+        function initCharts() {
+            const hCtx = document.getElementById('hoursChart').getContext('2d');
+            hChart = new Chart(hCtx, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Heures', backgroundColor: '#b91c1c', borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { font: { size: 9, weight: 'bold' } } } } }
+            });
+            const cCtx = document.getElementById('coverageChart').getContext('2d');
+            cChart = new Chart(cCtx, {
+                type: 'line',
+                data: { labels: days, datasets: [{ label: 'Staff', borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#16a34a' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9, weight: 'bold' } } }, x: { ticks: { font: { size: 9 } } } } }
+            });
+        }
+
+        function updateCharts() {
+            const data = scheduleData[currentWeek];
+            const all = [...(data.encadrement || []), ...(data.salle || []), ...(data.cuisine || [])];
+            hChart.data.labels = all.map(p => p.id);
+            hChart.data.datasets[0].data = all.map(p => p.hours);
+            hChart.update();
+            const coverage = days.map((_, i) => all.filter(p => p.days[i] !== 'REPOS').length);
+            cChart.data.datasets[0].data = coverage;
+            cChart.update();
+        }
+
+        window.onload = () => { initCharts(); generateNewCycle(); };
+    </script>
+</body>
+
+</html>
