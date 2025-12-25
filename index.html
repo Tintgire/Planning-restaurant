@@ -5,18 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Del Arte - Planning Hebdomadaire</title>
-    <!-- Chargement des bibliothèques externes : Tailwind pour le style et Chart.js pour les graphiques -->
+    <!-- Chargement des bibliothèques externes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <style>
-        /* Styles de base pour le corps de la page */
+        /* Style visuel original restauré */
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: #fff7ed;
         }
 
-        /* Couleurs spécifiques pour chaque département */
         .bg-gerant {
             background-color: #4338ca !important;
         }
@@ -29,7 +28,6 @@
             background-color: #d97706 !important;
         }
 
-        /* Styles pour les cellules contenant les noms des employés selon leur rôle */
         .name-cell-gerant {
             background-color: #e0e7ff !important;
             color: #3730a3 !important;
@@ -54,7 +52,6 @@
             border-left: 4px solid #d97706 !important;
         }
 
-        /* Conteneur principal d'un département (ex: Salle) */
         .dept-block {
             margin-bottom: 2.5rem;
             background: white;
@@ -64,13 +61,11 @@
             border: 1px solid #d1d5db;
         }
 
-        /* Définition de la grille du planning : 1 col nom, 7 cols jours, 1 col total */
         .planning-grid {
             display: grid;
             grid-template-columns: 180px repeat(7, minmax(110px, 1fr)) 80px;
         }
 
-        /* Styles des en-têtes de colonnes (Lundi, Mardi...) */
         .grid-header {
             background-color: #f1f5f9;
             border-bottom: 2px solid #cbd5e1;
@@ -79,7 +74,6 @@
             font-size: 0.6rem;
             text-transform: uppercase;
             text-align: center;
-            letter-spacing: 0.05em;
             color: #475569;
             border-right: 1px solid #cbd5e1;
             display: flex;
@@ -87,11 +81,6 @@
             justify-content: center;
         }
 
-        .grid-header:last-child {
-            border-right: none;
-        }
-
-        /* Cellule standard de la grille */
         .grid-cell,
         .name-cell,
         .total-cell {
@@ -114,7 +103,6 @@
 
         .total-cell {
             background-color: #fef2f2;
-            display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
@@ -122,53 +110,58 @@
             color: #b91c1c;
             font-size: 0.75rem;
             border-right: none;
-            width: 100%;
         }
 
-        /* Texte des horaires (Midi et Soir) */
-        .service-label {
+        /* Style des inputs "invisibles" pour le mode édition */
+        .shift-input {
+            width: 100%;
+            background: transparent;
+            border: none;
             font-size: 0.6rem;
             font-weight: 800;
             line-height: 1;
             color: #1e293b;
-            z-index: 10;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .shift-input:focus {
+            background: white;
+            outline: 2px solid #ef4444;
+            border-radius: 2px;
+            color: black;
         }
 
         .midi-time {
-            align-self: flex-start;
             text-align: left;
         }
 
         .soir-time {
-            align-self: flex-end;
             text-align: right;
         }
 
-        /* Style pour le texte "REPOS" */
         .repos-tag {
-            color: #064e3b;
-            font-style: italic;
-            font-weight: 900;
-            text-transform: uppercase;
+            color: #064e3b !important;
+            font-style: italic !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
             font-size: 0.6rem;
         }
 
-        /* Couleurs de fond pour les différents types de repos */
         .full-repos {
             background-color: #bbf7d0 !important;
         }
 
-        /* Dégradé vertical pour indiquer un repos seulement le midi (gauche verte) */
         .repos-midi {
             background: linear-gradient(to right, #bbf7d0 50%, transparent 50%);
         }
 
-        /* Dégradé vertical pour indiquer un repos seulement le soir (droite verte) */
         .repos-soir {
             background: linear-gradient(to right, transparent 50%, #bbf7d0 50%);
         }
 
-        /* Barre de titre de chaque département */
         .dept-title-bar {
             padding: 10px 20px;
             font-weight: 900;
@@ -181,16 +174,19 @@
             gap: 12px;
         }
 
-        /* Paramètres pour l'impression */
+        #today-date-display {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #475569;
+            padding-left: 12px;
+            border-left: 2px solid #cbd5e1;
+            white-space: nowrap;
+        }
+
         @media print {
             @page {
                 size: landscape;
                 margin: 1cm;
-            }
-
-            body {
-                background-color: white !important;
-                padding: 0 !important;
             }
 
             nav,
@@ -202,7 +198,6 @@
             .dept-block {
                 box-shadow: none !important;
                 border: 2px solid black !important;
-                margin-bottom: 0 !important;
                 display: none;
             }
 
@@ -210,39 +205,14 @@
                 display: block !important;
             }
 
-            .dept-title-bar {
+            .shift-input {
                 color: black !important;
-                border-bottom: 2px solid black !important;
-                background: none !important;
+                border: none !important;
             }
 
-            .grid-header {
-                background-color: #eee !important;
-                border-color: black !important;
-                color: black !important;
-            }
-
-            .grid-cell,
-            .name-cell,
-            .total-cell {
-                border-color: black !important;
-            }
-
-            /* Assurer que les couleurs de fond s'impriment correctement */
-            .full-repos {
-                background-color: #bbf7d0 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .repos-midi {
-                background: linear-gradient(to right, #bbf7d0 50%, transparent 50%) !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
+            .full-repos,
+            .repos-midi,
             .repos-soir {
-                background: linear-gradient(to right, transparent 50%, #bbf7d0 50%) !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -252,7 +222,6 @@
 
 <body class="pb-20">
 
-    <!-- Barre de navigation supérieure -->
     <nav class="bg-white border-b-4 border-red-600 shadow-sm sticky top-0 z-50">
         <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center">
@@ -264,16 +233,14 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Sélecteur de semaine (S1 / S2) -->
                 <div class="flex bg-gray-100 p-1 rounded-lg">
                     <button onclick="setWeek(1)" id="btn-w1"
                         class="px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600">S1</button>
                     <button onclick="setWeek(2)" id="btn-w2"
                         class="px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600">S2</button>
                 </div>
-                <!-- Bouton pour créer un nouveau cycle aléatoire -->
                 <button onclick="generateNewCycle()"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-black shadow-lg shadow-red-100 flex items-center gap-2 active:scale-95 transition-all">
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-black shadow-lg flex items-center gap-2 transition-all">
                     <span>🔄</span> RÉGÉNÉRER
                 </button>
             </div>
@@ -281,41 +248,29 @@
     </nav>
 
     <main class="max-w-[1600px] mx-auto px-6 mt-6">
-        <!-- Section d'en-tête avec les actions d'impression -->
         <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 no-print">
             <div>
                 <h2 class="text-2xl font-black text-gray-900 tracking-tight">Vue Opérationnelle</h2>
-                <p class="text-xs text-gray-500 font-medium mt-1">
-                    Période : <span id="kpi-dates" class="text-red-600 font-bold">-- au --</span>
-                </p>
+                <p class="text-xs text-gray-500 font-medium mt-1">Cliquez sur un horaire pour le modifier.</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
                 <button onclick="printDept('encadrement')"
-                    class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
-                    <span>🖨️</span> IMPRIMER GÉRANT
-                </button>
+                    class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">🖨️
+                    GÉRANT</button>
                 <button onclick="printDept('salle')"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
-                    <span>🖨️</span> IMPRIMER SALLE
-                </button>
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">🖨️
+                    SALLE</button>
                 <button onclick="printDept('cuisine')"
-                    class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">
-                    <span>🖨️</span> IMPRIMER CUISINE
-                </button>
-
-                <div
-                    class="flex flex-col items-center bg-white border-2 border-orange-100 px-4 py-1.5 rounded-xl shadow-sm">
-                    <span class="text-[8px] font-black text-orange-400 uppercase tracking-widest">Aujourd'hui</span>
-                    <span id="current-date-display" class="text-[11px] font-bold text-gray-700">--/--/----</span>
-                </div>
+                    class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">🖨️
+                    CUISINE</button>
+                <span id="today-date-display">Date du jour : --/--/----</span>
             </div>
         </div>
 
-        <!-- Conteneur où le JavaScript injectera les tableaux de planning -->
         <div id="planning-sections"></div>
 
-        <!-- Section des graphiques statistiques -->
+        <!-- Graphiques -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 charts-container">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 class="text-xs font-black text-gray-400 uppercase mb-4">Volume Horaire Hebdomadaire</h3>
@@ -329,129 +284,85 @@
     </main>
 
     <script>
-        // --- VARIABLES GLOBALES ---
         const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-
-        // Modèles d'horaires types par département
         const shiftPatterns = {
-            cuisine: [
-                { midi: '11h-14h30', soir: '18h-21h30' },
-                { midi: '09h-15h', soir: 'REPOS' },
-                { midi: 'REPOS', soir: '18h-23h' }
-            ],
-            salle: [
-                { midi: '11h30-15h', soir: '19h-23h' },
-                { midi: '12h-15h', soir: 'REPOS' },
-                { midi: 'REPOS', soir: '18h30-00h' }
-            ],
-            encadrement: [
-                { midi: '09h-15h', soir: '18h-21h' },
-                { midi: '11h-22h', soir: 'REPOS' }
-            ]
+            cuisine: [{ m: '11h-14h30', s: '18h-21h30' }, { m: '09h-15h', s: 'REPOS' }, { m: 'REPOS', s: '18h-23h' }],
+            salle: [{ m: '11h30-15h', s: '19h-23h' }, { m: '12h-15h', s: 'REPOS' }, { m: 'REPOS', s: '18h30-00h' }],
+            encadrement: [{ m: '09h-15h', s: '18h-21h' }, { m: '11h-22h', s: 'REPOS' }]
         };
 
-        let currentWeek = 1; // Semaine affichée par défaut
-        let scheduleData = { 1: {}, 2: {} }; // Stockage des données générées
-        let dates = { s1: [], s2: [] }; // Dates de début et fin
-        let hChart, cChart; // Instances des graphiques
+        let currentWeek = 1;
+        let scheduleData = { 1: {}, 2: {} };
+        let hChart, cChart;
 
-        /**
-         * Change la semaine affichée (S1 ou S2)
-         * @param {number} w - Numéro de la semaine
-         */
-        function setWeek(w) {
-            currentWeek = w;
-            const active = "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600";
-            const inactive = "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
-
-            // Mise à jour visuelle des boutons
-            document.getElementById('btn-w1').className = (w === 1) ? active : inactive;
-            document.getElementById('btn-w2').className = (w === 2) ? active : inactive;
-
-            // Mise à jour de la période affichée
-            const dRange = (w === 1) ? dates.s1 : dates.s2;
-            document.getElementById('kpi-dates').innerText = `${dRange[0]} au ${dRange[1]}`;
-
-            // Rafraîchissement du tableau et des graphiques
+        function updateShiftValue(week, dept, personIndex, dayIndex, part, newValue) {
+            const val = newValue.trim().toUpperCase();
+            scheduleData[week][dept][personIndex].days[dayIndex][part] = val;
             renderPlanning();
             updateCharts();
         }
 
-        /**
-         * Génère un nouveau cycle de deux semaines avec des horaires aléatoires
-         */
+        function setWeek(w) {
+            currentWeek = w;
+            const btn1 = document.getElementById('btn-w1');
+            const btn2 = document.getElementById('btn-w2');
+            if (w === 1) {
+                btn1.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600";
+                btn2.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
+            } else {
+                btn2.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600";
+                btn1.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
+            }
+            renderPlanning();
+            updateCharts();
+        }
+
+        function updateTodayDate() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            document.getElementById('today-date-display').textContent = `Date du jour : ${day}/${month}/${year}`;
+        }
+
         function generateNewCycle() {
-            // Calcul des dates (prochain lundi)
-            const today = new Date();
-            const nextMon = new Date(today);
-            nextMon.setDate(today.getDate() + ((1 + 7 - today.getDay()) % 7 || 7));
-            const monS1 = new Date(nextMon);
-            const monS2 = new Date(monS1); monS2.setDate(monS1.getDate() + 7);
-
-            const fmt = (d) => d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
-            dates.s1 = [fmt(monS1), fmt(new Date(monS1.getTime() + 6 * 86400000))];
-            dates.s2 = [fmt(monS2), fmt(new Date(monS2.getTime() + 6 * 86400000))];
-
-            // Liste du personnel
             const staff = {
-                encadrement: [
-                    { id: 'Sophie', hours: 42, role: 'gerant' },
-                    { id: 'Jean-Marc', hours: 39, role: 'gerant' }
-                ],
+                encadrement: [{ id: 'Sophie', hours: 42, role: 'gerant' }, { id: 'Jean-Marc', hours: 39, role: 'gerant' }],
                 salle: [
-                    { id: 'Bouquet Alexis', hours: 39, role: 'adjoint' },
-                    { id: 'Treuillard Déborah', hours: 39, role: 'adjoint' },
-                    { id: 'Akbari Ibrahim', hours: 39, role: 'adjoint' },
-                    { id: 'Moura Ana', hours: 35 },
-                    { id: 'Picquet Zélie', hours: 35 },
-                    { id: 'Legrand Naomie', hours: 35 },
-                    { id: 'Arab Romaissa', hours: 35 },
-                    { id: 'Rahmouni Cenne', hours: 35 }
+                    { id: 'Bouquet Alexis', hours: 39, role: 'adjoint' }, { id: 'Treuillard Déborah', hours: 39, role: 'adjoint' },
+                    { id: 'Akbari Ibrahim', hours: 39, role: 'adjoint' }, { id: 'Moura Ana', hours: 35 }, { id: 'Picquet Zélie', hours: 35 },
+                    { id: 'Legrand Naomie', hours: 35 }, { id: 'Arab Romaissa', hours: 35 }, { id: 'Rahmouni Cenne', hours: 35 }
                 ],
                 cuisine: [
-                    { id: 'Kebe Mahamadou', hours: 35 },
-                    { id: 'Nazari Mojtaba', hours: 35 },
-                    { id: 'Faieq Hussain', hours: 35 },
-                    { id: 'Gory Mahamadou', hours: 35 },
-                    { id: 'Khan Sidra', hours: 35 },
-                    { id: 'Daniel Corentin', hours: 35 }
+                    { id: 'Kebe Mahamadou', hours: 35 }, { id: 'Nazari Mojtaba', hours: 35 }, { id: 'Faieq Hussain', hours: 35 },
+                    { id: 'Gory Mahamadou', hours: 35 }, { id: 'Khan Sidra', hours: 35 }, { id: 'Daniel Corentin', hours: 35 }
                 ]
             };
 
-            // Attribution aléatoire des horaires pour chaque personne
             [1, 2].forEach(w => {
                 Object.keys(staff).forEach(dept => {
                     scheduleData[w][dept] = staff[dept].map(p => {
-                        // On choisit 2 jours de repos aléatoires par semaine
-                        const repos = [];
-                        while (repos.length < 2) {
-                            let r = Math.floor(Math.random() * 7);
-                            if (!repos.includes(r)) repos.push(r);
-                        }
                         return {
                             ...p,
-                            days: days.map((_, i) => {
-                                if (repos.includes(i)) return 'REPOS';
-                                // Sélection d'un shift dans le catalogue
+                            days: days.map(() => {
+                                const isRepos = Math.random() > 0.7;
+                                if (isRepos) return { midi: 'REPOS', soir: 'REPOS' };
                                 const opts = shiftPatterns[p.role === 'adjoint' ? 'salle' : dept];
-                                return opts[Math.floor(Math.random() * opts.length)];
+                                const pick = opts[Math.floor(Math.random() * opts.length)];
+                                return { midi: pick.m, soir: pick.s };
                             })
                         };
                     });
                 });
             });
-            setWeek(1); // On revient à la semaine 1 après régénération
+            renderPlanning();
+            updateCharts();
         }
 
-        /**
-         * Construit et affiche le code HTML des tableaux de planning
-         */
         function renderPlanning() {
             const container = document.getElementById('planning-sections');
-            container.innerHTML = ''; // On vide le conteneur actuel
+            container.innerHTML = '';
             const data = scheduleData[currentWeek];
-
-            // Configuration visuelle des 3 blocs
             const configs = [
                 { id: 'encadrement', label: '👔Gérant', color: 'bg-gerant', nameStyle: 'name-cell-gerant' },
                 { id: 'salle', label: '🍽️Salle', color: 'bg-salle', nameStyle: 'name-cell-salle' },
@@ -463,44 +374,27 @@
                 block.className = `dept-block`;
                 block.id = `block-${conf.id}`;
 
-                // En-tête du tableau
-                let html = `
-                    <div class="dept-title-bar ${conf.color}">
-                        ${conf.label}
-                    </div>
-                    <div class="planning-grid">
-                        <div class="grid-header">Nom</div>
-                        ${days.map(d => `<div class="grid-header">${d.substring(0, 3)}</div>`).join('')}
-                        <div class="grid-header" style="border:none">Total</div>
-                `;
+                let html = `<div class="dept-title-bar ${conf.color}">${conf.label}</div><div class="planning-grid">`;
+                html += `<div class="grid-header">Nom</div>` + days.map(d => `<div class="grid-header">${d.substring(0, 3)}</div>`).join('') + `<div class="grid-header">Total</div>`;
 
-                // Lignes pour chaque employé
-                data[conf.id].forEach(p => {
-                    const isAdj = p.role === 'adjoint';
-                    const currentNameStyle = isAdj ? 'name-cell-adjoint' : conf.nameStyle;
+                data[conf.id].forEach((p, pIdx) => {
+                    const nameStyle = p.role === 'adjoint' ? 'name-cell-adjoint' : conf.nameStyle;
+                    html += `<div class="name-cell ${nameStyle}">${p.id}</div>`;
 
-                    html += `<div class="name-cell ${currentNameStyle}">${p.id}</div>`;
+                    p.days.forEach((d, dIdx) => {
+                        const isMidiRepos = d.midi === 'REPOS';
+                        const isSoirRepos = d.soir === 'REPOS';
+                        let cellClass = (isMidiRepos && isSoirRepos) ? 'full-repos' : (isMidiRepos ? 'repos-midi' : (isSoirRepos ? 'repos-soir' : ''));
 
-                    p.days.forEach(d => {
-                        if (d === 'REPOS') {
-                            // Case de repos complet (verte)
-                            html += `<div class="grid-cell full-repos"><div class="repos-tag midi-time">REPOS</div><div class="repos-tag soir-time">REPOS</div></div>`;
-                        } else {
-                            const midiHtml = d.midi === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.midi;
-                            const soirHtml = d.soir === 'REPOS' ? '<span class="repos-tag">REPOS</span>' : d.soir;
-
-                            // Détermine si on applique un dégradé de demi-repos
-                            let partialClass = '';
-                            if (d.midi === 'REPOS') partialClass = 'repos-midi';
-                            else if (d.soir === 'REPOS') partialClass = 'repos-soir';
-
-                            html += `<div class="grid-cell ${partialClass}">
-                                        <div class="service-label midi-time">${midiHtml}</div>
-                                        <div class="service-label soir-time">${soirHtml}</div>
-                                     </div>`;
-                        }
+                        html += `<div class="grid-cell ${cellClass}">
+                            <input class="shift-input midi-time ${isMidiRepos ? 'repos-tag' : ''}" 
+                                   value="${d.midi}" 
+                                   onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'midi', this.value)">
+                            <input class="shift-input soir-time ${isSoirRepos ? 'repos-tag' : ''}" 
+                                   value="${d.soir}" 
+                                   onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'soir', this.value)">
+                        </div>`;
                     });
-                    // Affichage du total d'heures
                     html += `<div class="total-cell"><span>${p.hours}h</span></div>`;
                 });
 
@@ -510,28 +404,18 @@
             });
         }
 
-        /**
-         * Gère l'impression ciblée d'un seul département
-         * @param {string} id - Identifiant du département à imprimer
-         */
         function printDept(id) {
-            // On cache tous les blocs et on ne montre que celui demandé pour l'impression
             document.querySelectorAll('.dept-block').forEach(b => b.classList.remove('print-active'));
             document.getElementById(`block-${id}`).classList.add('print-active');
             window.print();
         }
 
-        /**
-         * Initialise les graphiques vides à l'ouverture de la page
-         */
         function initCharts() {
-            // Graphique en barres (Heures par personne)
             hChart = new Chart(document.getElementById('hoursChart'), {
                 type: 'bar',
                 data: { labels: [], datasets: [{ backgroundColor: '#ef4444', borderRadius: 4 }] },
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-            // Graphique en courbe (Présence par jour)
             cChart = new Chart(document.getElementById('coverageChart'), {
                 type: 'line',
                 data: { labels: days, datasets: [{ borderColor: '#16a34a', tension: 0.4 }] },
@@ -539,32 +423,19 @@
             });
         }
 
-        /**
-         * Met à jour les données des graphiques en fonction du planning actuel
-         */
         function updateCharts() {
-            // On récupère toutes les données de la semaine en cours
             const data = scheduleData[currentWeek];
-            // On fusionne tout le personnel dans une seule liste
             const all = [...data.encadrement, ...data.salle, ...data.cuisine];
-
-            // Mise à jour du graphique des heures individuelles
-            hChart.data.labels = all.map(p => p.id); // Liste des noms
-            hChart.data.datasets[0].data = all.map(p => p.hours); // Liste des heures
-            hChart.update(); // Rafraîchissement visuel
-
-            // Mise à jour du graphique de couverture (combien de personnes travaillent chaque jour)
-            cChart.data.datasets[0].data = days.map((_, i) => all.filter(p => p.days[i] !== 'REPOS').length);
+            hChart.data.labels = all.map(p => p.id);
+            hChart.data.datasets[0].data = all.map(p => p.hours);
+            hChart.update();
+            cChart.data.datasets[0].data = days.map((_, i) => all.filter(p => p.days[i].midi !== 'REPOS' || p.days[i].soir !== 'REPOS').length);
             cChart.update();
         }
 
-        // --- LANCEMENT AU CHARGEMENT ---
         window.onload = () => {
-            // Affiche la date du jour
-            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('fr-FR');
-            // Prépare les graphiques
+            updateTodayDate();
             initCharts();
-            // Génère le premier planning
             generateNewCycle();
         };
     </script>
