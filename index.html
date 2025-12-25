@@ -295,9 +295,60 @@
         let scheduleData = { 1: {}, 2: {} };
         let hChart, cChart;
 
+        /**
+         * Calcule la durée. Supporte désormais le format décimal "10.75h" ou "10.75"
+         */
+        function calculateDuration(shiftStr) {
+            if (!shiftStr || shiftStr.toUpperCase().includes('REPOS')) return 0;
+
+            const cleanStr = shiftStr.toLowerCase().replace('h', '').trim();
+
+            // Cas 1 : Saisie décimale (ex: "10.75")
+            if (!cleanStr.includes('-') && !isNaN(parseFloat(cleanStr))) {
+                return parseFloat(cleanStr);
+            }
+
+            // Cas 2 : Format plage horaire (ex: "11h-14h30")
+            const parts = shiftStr.toLowerCase().split('-').map(p => p.trim());
+            if (parts.length !== 2) return 0;
+
+            function toDecimal(timeStr) {
+                let h = 0, m = 0;
+                if (timeStr.includes('h')) {
+                    const bits = timeStr.split('h');
+                    h = parseInt(bits[0]) || 0;
+                    m = parseInt(bits[1]) || 0;
+                } else if (timeStr.includes(':')) {
+                    const bits = timeStr.split(':');
+                    h = parseInt(bits[0]) || 0;
+                    m = parseInt(bits[1]) || 0;
+                } else {
+                    h = parseInt(timeStr) || 0;
+                }
+                return h + (m / 60);
+            }
+
+            const start = toDecimal(parts[0]);
+            let end = toDecimal(parts[1]);
+            if (end < start) end += 24;
+            return Math.max(0, end - start);
+        }
+
+        function calculateWeeklyTotal(person) {
+            let total = 0;
+            person.days.forEach(day => {
+                total += calculateDuration(day.midi);
+                total += calculateDuration(day.soir);
+            });
+            // Arrondi à 2 décimales pour éviter les erreurs de calcul flottant
+            return Math.round(total * 100) / 100;
+        }
+
         function updateShiftValue(week, dept, personIndex, dayIndex, part, newValue) {
             const val = newValue.trim().toUpperCase();
-            scheduleData[week][dept][personIndex].days[dayIndex][part] = val;
+            const person = scheduleData[week][dept][personIndex];
+            person.days[dayIndex][part] = val;
+            person.hours = calculateWeeklyTotal(person);
             renderPlanning();
             updateCharts();
         }
@@ -327,22 +378,22 @@
 
         function generateNewCycle() {
             const staff = {
-                encadrement: [{ id: 'Sophie', hours: 42, role: 'gerant' }, { id: 'Jean-Marc', hours: 39, role: 'gerant' }],
+                encadrement: [{ id: 'Sophie', hours: 0, role: 'gerant' }, { id: 'Jean-Marc', hours: 0, role: 'gerant' }],
                 salle: [
-                    { id: 'Bouquet Alexis', hours: 39, role: 'adjoint' }, { id: 'Treuillard Déborah', hours: 39, role: 'adjoint' },
-                    { id: 'Akbari Ibrahim', hours: 39, role: 'adjoint' }, { id: 'Moura Ana', hours: 35 }, { id: 'Picquet Zélie', hours: 35 },
-                    { id: 'Legrand Naomie', hours: 35 }, { id: 'Arab Romaissa', hours: 35 }, { id: 'Rahmouni Cenne', hours: 35 }
+                    { id: 'Bouquet Alexis', hours: 0, role: 'adjoint' }, { id: 'Treuillard Déborah', hours: 0, role: 'adjoint' },
+                    { id: 'Akbari Ibrahim', hours: 0, role: 'adjoint' }, { id: 'Moura Ana', hours: 0 }, { id: 'Picquet Zélie', hours: 0 },
+                    { id: 'Legrand Naomie', hours: 0 }, { id: 'Arab Romaissa', hours: 0 }, { id: 'Rahmouni Cenne', hours: 0 }
                 ],
                 cuisine: [
-                    { id: 'Kebe Mahamadou', hours: 35 }, { id: 'Nazari Mojtaba', hours: 35 }, { id: 'Faieq Hussain', hours: 35 },
-                    { id: 'Gory Mahamadou', hours: 35 }, { id: 'Khan Sidra', hours: 35 }, { id: 'Daniel Corentin', hours: 35 }
+                    { id: 'Kebe Mahamadou', hours: 0 }, { id: 'Nazari Mojtaba', hours: 0 }, { id: 'Faieq Hussain', hours: 0 },
+                    { id: 'Gory Mahamadou', hours: 0 }, { id: 'Khan Sidra', hours: 0 }, { id: 'Daniel Corentin', hours: 0 }
                 ]
             };
 
             [1, 2].forEach(w => {
                 Object.keys(staff).forEach(dept => {
                     scheduleData[w][dept] = staff[dept].map(p => {
-                        return {
+                        const person = {
                             ...p,
                             days: days.map(() => {
                                 const isRepos = Math.random() > 0.7;
@@ -352,6 +403,8 @@
                                 return { midi: pick.m, soir: pick.s };
                             })
                         };
+                        person.hours = calculateWeeklyTotal(person);
+                        return person;
                     });
                 });
             });
@@ -364,9 +417,9 @@
             container.innerHTML = '';
             const data = scheduleData[currentWeek];
             const configs = [
-                { id: 'encadrement', label: '👔Gérant', color: 'bg-gerant', nameStyle: 'name-cell-gerant' },
-                { id: 'salle', label: '🍽️Salle', color: 'bg-salle', nameStyle: 'name-cell-salle' },
-                { id: 'cuisine', label: '👨‍🍳Cuisine', color: 'bg-cuisine', nameStyle: 'name-cell-cuisine' }
+                { id: 'encadrement', label: '👔 Gérant', color: 'bg-gerant', nameStyle: 'name-cell-gerant' },
+                { id: 'salle', label: '🍽️ Salle', color: 'bg-salle', nameStyle: 'name-cell-salle' },
+                { id: 'cuisine', label: '👨‍🍳 Cuisine', color: 'bg-cuisine', nameStyle: 'name-cell-cuisine' }
             ];
 
             configs.forEach(conf => {
@@ -387,13 +440,13 @@
                         let cellClass = (isMidiRepos && isSoirRepos) ? 'full-repos' : (isMidiRepos ? 'repos-midi' : (isSoirRepos ? 'repos-soir' : ''));
 
                         html += `<div class="grid-cell ${cellClass}">
-                            <input class="shift-input midi-time ${isMidiRepos ? 'repos-tag' : ''}" 
-                                   value="${d.midi}" 
-                                   onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'midi', this.value)">
-                            <input class="shift-input soir-time ${isSoirRepos ? 'repos-tag' : ''}" 
-                                   value="${d.soir}" 
-                                   onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'soir', this.value)">
-                        </div>`;
+                                <input class="shift-input midi-time ${isMidiRepos ? 'repos-tag' : ''}" 
+                                       value="${d.midi}" 
+                                       onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'midi', this.value)">
+                                <input class="shift-input soir-time ${isSoirRepos ? 'repos-tag' : ''}" 
+                                       value="${d.soir}" 
+                                       onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'soir', this.value)">
+                            </div>`;
                     });
                     html += `<div class="total-cell"><span>${p.hours}h</span></div>`;
                 });
