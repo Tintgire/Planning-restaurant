@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Del Arte - Planning Hebdomadaire</title>
+    <title>Del Arte - Planning & Configuration</title>
     <!-- Chargement des bibliothèques externes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -112,7 +112,6 @@
             border-right: none;
         }
 
-        /* Style pour les badges horaires */
         .highlight-time {
             background-color: #1e3a8a !important;
             color: white !important;
@@ -122,17 +121,14 @@
             display: inline-block;
         }
 
-        /* Jaune foncé intense avec contour assorti */
         .highlight-late {
             background-color: #eab308 !important;
             color: #000000 !important;
-            /* Texte brun très foncé */
             padding: 1px 4px;
             border-radius: 3px;
             font-weight: bold;
             display: inline-block;
             border: 1px solid #eab308;
-            /* Contour harmonisé avec le fond */
         }
 
         .shift-editable {
@@ -195,13 +191,10 @@
             gap: 12px;
         }
 
-        #today-date-display {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #475569;
-            padding-left: 12px;
-            border-left: 2px solid #cbd5e1;
-            white-space: nowrap;
+        .over-limit {
+            color: #dc2626 !important;
+            text-decoration: underline;
+            text-decoration-style: wavy;
         }
 
         @media print {
@@ -212,8 +205,13 @@
 
             nav,
             .no-print,
-            .charts-container {
+            .charts-container,
+            #config-page {
                 display: none !important;
+            }
+
+            #planning-page {
+                display: block !important;
             }
 
             .dept-block {
@@ -226,7 +224,6 @@
                 display: block !important;
             }
 
-            /* Forçage des couleurs et dégradés à l'impression */
             .full-repos,
             .repos-midi,
             .repos-soir,
@@ -238,7 +235,6 @@
             .bg-cuisine {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                color-adjust: exact !important;
             }
         }
     </style>
@@ -252,34 +248,47 @@
                 <span class="text-2xl mr-3">🍕</span>
                 <div>
                     <h1 class="text-xl font-black text-red-700 tracking-tighter">DEL ARTE</h1>
-                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Planning Hebdomadaire</p>
+                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Planning & Gestion</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <div class="flex bg-gray-100 p-1 rounded-lg">
+            <div class="flex items-center gap-6">
+                <!-- Navigation Onglets -->
+                <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-xl no-print">
+                    <button onclick="switchPage('planning')" id="tab-planning"
+                        class="px-5 py-2 rounded-lg text-xs font-black transition-all bg-white text-red-600 shadow-sm">
+                        📅 PLANNING
+                    </button>
+                    <button onclick="switchPage('config')" id="tab-config"
+                        class="px-5 py-2 rounded-lg text-xs font-black transition-all text-gray-500 hover:text-gray-700">
+                        ⚙️ CONFIGURATION
+                    </button>
+                </div>
+
+                <div id="week-selector" class="flex bg-gray-100 p-1 rounded-lg">
                     <button onclick="setWeek(1)" id="btn-w1"
                         class="px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600">S1</button>
                     <button onclick="setWeek(2)" id="btn-w2"
                         class="px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600">S2</button>
                 </div>
-                <button onclick="generateNewCycle()"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-black shadow-lg flex items-center gap-2 transition-all">
-                    <span>🔄</span> RÉGÉNÉRER
-                </button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-[1600px] mx-auto px-6 mt-6">
+    <!-- PAGE 1 : PLANNING -->
+    <main id="planning-page" class="max-w-[1600px] mx-auto px-6 mt-6">
         <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 no-print">
             <div>
-                <h2 class="text-2xl font-black text-gray-900 tracking-tight">Vue Opérationnelle</h2>
-                <p class="text-xs text-gray-500 font-medium mt-1">Édition en direct : badges bleus (ouverture), badges
-                    jaunes (fermeture).</p>
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight text-red-800">Vue Opérationnelle</h2>
+                <p class="text-xs text-gray-500 font-medium mt-1">Édition directe activée. Les totaux se mettent à jour
+                    automatiquement.</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
+                <button onclick="generateNewCycle()"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-black shadow-lg flex items-center gap-2 transition-all mr-4">
+                    <span>🔄</span> RÉGÉNÉRER
+                </button>
                 <button onclick="printDept('encadrement')"
                     class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">🖨️
                     GÉRANT</button>
@@ -289,7 +298,8 @@
                 <button onclick="printDept('cuisine')"
                     class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all">🖨️
                     CUISINE</button>
-                <span id="today-date-display">Date du jour : --/--/----</span>
+                <span id="today-date-display" class="text-[10px] font-bold text-gray-400 ml-2">Date du jour :
+                    --/--/----</span>
             </div>
         </div>
 
@@ -307,6 +317,62 @@
         </div>
     </main>
 
+    <!-- PAGE 2 : CONFIGURATION -->
+    <main id="config-page" class="max-w-[1000px] mx-auto px-6 mt-8 hidden">
+        <div class="mb-10">
+            <h2 class="text-3xl font-black text-gray-900 tracking-tight">Configuration des Règles</h2>
+            <p class="text-sm text-gray-500 font-medium mt-1">Gérez vos équipes et les contraintes de temps de travail.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Formulaire Ajout -->
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+                <h3 class="text-lg font-black text-red-700 uppercase mb-6 flex items-center gap-2">
+                    <span>👤</span> Ajouter un membre
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Nom Complet</label>
+                        <input type="text" id="new-name" placeholder="Ex: Jean Dupont"
+                            class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg px-4 py-3 text-sm focus:border-red-500 outline-none transition-all">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Département</label>
+                            <select id="new-dept"
+                                class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg px-3 py-3 text-sm focus:border-red-500 outline-none">
+                                <option value="encadrement">Gérant</option>
+                                <option value="salle">Salle</option>
+                                <option value="cuisine">Cuisine</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Max Heures /
+                                Sem.</label>
+                            <input type="number" id="new-limit" value="35"
+                                class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg px-3 py-3 text-sm focus:border-red-500 outline-none">
+                        </div>
+                    </div>
+                    <button onclick="addStaff()"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg transition-all mt-4">
+                        VALIDER L'AJOUT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Liste et Suppression -->
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+                <h3 class="text-lg font-black text-gray-800 uppercase mb-6 flex items-center gap-2">
+                    <span>📋</span> Liste du Personnel
+                </h3>
+                <div id="staff-list-container" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                    <!-- Généré en JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
     <script>
         const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
         const shiftPatterns = {
@@ -315,35 +381,137 @@
             encadrement: [{ m: '09h45-15h', s: '18h15-22h' }, { m: '11h-22h', s: 'REPOS' }]
         };
 
+        // État Global Initial
+        let staffConfig = {
+            encadrement: [
+                { id: 'Sophie', role: 'gerant', maxHours: 35 },
+                { id: 'Jean-Marc', role: 'gerant', maxHours: 35 }
+            ],
+            salle: [
+                { id: 'Bouquet Alexis', role: 'adjoint', maxHours: 39 },
+                { id: 'Treuillard Déborah', role: 'adjoint', maxHours: 35 },
+                { id: 'Akbari Ibrahim', role: 'adjoint', maxHours: 35 },
+                { id: 'Moura Ana', maxHours: 24 },
+                { id: 'Picquet Zélie', maxHours: 15 },
+                { id: 'Legrand Naomie', maxHours: 20 },
+                { id: 'Arab Romaissa', maxHours: 12 },
+                { id: 'Rahmouni Cenne', maxHours: 35 }
+            ],
+            cuisine: [
+                { id: 'Kebe Mahamadou', maxHours: 35 },
+                { id: 'Nazari Mojtaba', maxHours: 35 },
+                { id: 'Faieq Hussain', maxHours: 35 },
+                { id: 'Gory Mahamadou', maxHours: 35 },
+                { id: 'Khan Sidra', maxHours: 25 },
+                { id: 'Daniel Corentin', maxHours: 35 }
+            ]
+        };
+
         let currentWeek = 1;
         let scheduleData = { 1: {}, 2: {} };
         let hChart, cChart;
 
-        /**
-         * Formate le texte avec les badges couleurs
-         */
+        // Navigation
+        function switchPage(page) {
+            const p1 = document.getElementById('planning-page');
+            const p2 = document.getElementById('config-page');
+            const t1 = document.getElementById('tab-planning');
+            const t2 = document.getElementById('tab-config');
+
+            if (page === 'planning') {
+                p1.classList.remove('hidden');
+                p2.classList.add('hidden');
+                t1.className = "px-5 py-2 rounded-lg text-xs font-black transition-all bg-white text-red-600 shadow-sm";
+                t2.className = "px-5 py-2 rounded-lg text-xs font-black transition-all text-gray-500 hover:text-gray-700";
+            } else {
+                p1.classList.add('hidden');
+                p2.classList.remove('hidden');
+                t2.className = "px-5 py-2 rounded-lg text-xs font-black transition-all bg-white text-red-600 shadow-sm";
+                t1.className = "px-5 py-2 rounded-lg text-xs font-black transition-all text-gray-500 hover:text-gray-700";
+                renderConfigList();
+            }
+        }
+
+        // --- GESTION DU PERSONNEL ---
+
+        function addStaff() {
+            const name = document.getElementById('new-name').value.trim();
+            const dept = document.getElementById('new-dept').value;
+            const limit = parseFloat(document.getElementById('new-limit').value) || 35;
+
+            if (!name) return;
+
+            staffConfig[dept].push({
+                id: name,
+                maxHours: limit,
+                role: (dept === 'encadrement') ? 'gerant' : ''
+            });
+
+            document.getElementById('new-name').value = '';
+            renderConfigList();
+            generateNewCycle(); // On régénère pour inclure le nouveau
+        }
+
+        function removeStaff(dept, index) {
+            staffConfig[dept].splice(index, 1);
+            renderConfigList();
+            generateNewCycle();
+        }
+
+        function updateStaffLimit(dept, index, value) {
+            staffConfig[dept][index].maxHours = parseFloat(value) || 0;
+            updateCharts();
+            renderPlanning();
+        }
+
+        function renderConfigList() {
+            const container = document.getElementById('staff-list-container');
+            container.innerHTML = '';
+
+            Object.keys(staffConfig).forEach(dept => {
+                const title = dept.toUpperCase();
+                const color = dept === 'cuisine' ? 'text-orange-600' : (dept === 'salle' ? 'text-green-600' : 'text-indigo-600');
+
+                let section = `<div class="pt-4 pb-2 border-b border-gray-100"><span class="text-[10px] font-black ${color}">${title}</span></div>`;
+
+                staffConfig[dept].forEach((p, idx) => {
+                    section += `
+                        <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100 group">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-800">${p.id}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase">Objectif :</span>
+                                    <input type="number" value="${p.maxHours}" 
+                                        onchange="updateStaffLimit('${dept}', ${idx}, this.value)"
+                                        class="w-12 bg-transparent text-[9px] font-black text-red-600 focus:outline-none focus:underline">
+                                    <span class="text-[9px] text-gray-400 font-bold uppercase">h</span>
+                                </div>
+                            </div>
+                            <button onclick="removeStaff('${dept}', ${idx})" class="opacity-0 group-hover:opacity-100 bg-gray-200 hover:bg-red-100 hover:text-red-600 p-2 rounded-md transition-all">
+                                🗑️
+                            </button>
+                        </div>
+                    `;
+                });
+                container.innerHTML += section;
+            });
+        }
+
+        // --- LOGIQUE PLANNING (IDENTIQUE A LA PAGE 1) ---
+
         function formatDisplay(text) {
             if (!text) return "";
-
-            // Liste des horaires pour badge Bleu Foncé
             const blueTimes = ["09h30", "09h45", "11h", "11h15", "18h", "18h15"];
-            // Liste des horaires pour badge Jaune Foncé
             const yellowTimes = ["23h30", "00h"];
-
             let result = text;
-
-            // Appliquer les badges bleus
             blueTimes.forEach(t => {
                 const regex = new RegExp(`\\b${t}\\b`, 'gi');
                 result = result.replace(regex, `<span class="highlight-time">${t}</span>`);
             });
-
-            // Appliquer les badges jaunes
             yellowTimes.forEach(t => {
                 const regex = new RegExp(`\\b${t}\\b`, 'gi');
                 result = result.replace(regex, `<span class="highlight-late">${t}</span>`);
             });
-
             return result;
         }
 
@@ -352,7 +520,6 @@
             const div = document.createElement('div');
             div.innerHTML = shiftStr;
             const cleanText = div.textContent || div.innerText || "";
-
             const parts = cleanText.toLowerCase().split('-').map(p => p.trim());
             if (parts.length !== 2) return 0;
 
@@ -363,12 +530,9 @@
                     const bits = time.split('h');
                     h = parseInt(bits[0]) || 0;
                     m = parseInt(bits[1]) || 0;
-                } else {
-                    h = parseInt(time) || 0;
-                }
+                } else { h = parseInt(time) || 0; }
                 return h + (m / 60);
             }
-
             const start = toDecimal(parts[0]);
             let end = toDecimal(parts[1]);
             if (end < start) end += 24;
@@ -384,54 +548,15 @@
             return Math.round(total * 100) / 100;
         }
 
-        function onShiftBlur(el, week, dept, personIndex, dayIndex, part) {
-            const newValue = el.innerText.trim();
-            const person = scheduleData[week][dept][personIndex];
-
-            person.days[dayIndex][part] = newValue.toUpperCase() === "REPOS" ? "REPOS" : newValue;
-
-            person.hours = calculateWeeklyTotal(person);
-            renderPlanning();
-            updateCharts();
-        }
-
-        function setWeek(w) {
-            currentWeek = w;
-            const btn1 = document.getElementById('btn-w1');
-            const btn2 = document.getElementById('btn-w2');
-            btn1.className = (w === 1) ? "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600" : "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
-            btn2.className = (w === 2) ? "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600" : "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
-            renderPlanning();
-            updateCharts();
-        }
-
-        function updateTodayDate() {
-            const now = new Date();
-            document.getElementById('today-date-display').textContent = `Date du jour : ${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-        }
-
         function generateNewCycle() {
-            const staff = {
-                encadrement: [{ id: 'Sophie', hours: 0, role: 'gerant' }, { id: 'Jean-Marc', hours: 0, role: 'gerant' }],
-                salle: [
-                    { id: 'Bouquet Alexis', hours: 0, role: 'adjoint' }, { id: 'Treuillard Déborah', hours: 0, role: 'adjoint' },
-                    { id: 'Akbari Ibrahim', hours: 0, role: 'adjoint' }, { id: 'Moura Ana', hours: 0 }, { id: 'Picquet Zélie', hours: 0 },
-                    { id: 'Legrand Naomie', hours: 0 }, { id: 'Arab Romaissa', hours: 0 }, { id: 'Rahmouni Cenne', hours: 0 }
-                ],
-                cuisine: [
-                    { id: 'Kebe Mahamadou', hours: 0 }, { id: 'Nazari Mojtaba', hours: 0 }, { id: 'Faieq Hussain', hours: 0 },
-                    { id: 'Gory Mahamadou', hours: 0 }, { id: 'Khan Sidra', hours: 0 }, { id: 'Daniel Corentin', hours: 0 }
-                ]
-            };
-
             [1, 2].forEach(w => {
-                Object.keys(staff).forEach(dept => {
-                    scheduleData[w][dept] = staff[dept].map(p => {
+                Object.keys(staffConfig).forEach(dept => {
+                    scheduleData[w][dept] = staffConfig[dept].map(p => {
                         const person = {
                             ...p,
                             days: days.map(() => {
-                                if (Math.random() > 0.75) return { midi: 'REPOS', soir: 'REPOS' };
-                                const opts = shiftPatterns[p.role === 'adjoint' ? 'salle' : dept];
+                                if (Math.random() > 0.8) return { midi: 'REPOS', soir: 'REPOS' };
+                                const opts = shiftPatterns[p.role === 'adjoint' ? 'salle' : dept] || shiftPatterns['salle'];
                                 const pick = opts[Math.floor(Math.random() * opts.length)];
                                 return { midi: pick.m, soir: pick.s };
                             })
@@ -441,6 +566,15 @@
                     });
                 });
             });
+            renderPlanning();
+            updateCharts();
+        }
+
+        function onShiftBlur(el, week, dept, personIndex, dayIndex, part) {
+            const newValue = el.innerText.trim();
+            const person = scheduleData[week][dept][personIndex];
+            person.days[dayIndex][part] = newValue.toUpperCase() === "REPOS" ? "REPOS" : newValue;
+            person.hours = calculateWeeklyTotal(person);
             renderPlanning();
             updateCharts();
         }
@@ -465,7 +599,12 @@
 
                 data[conf.id].forEach((p, pIdx) => {
                     const nameStyle = p.role === 'adjoint' ? 'name-cell-adjoint' : conf.nameStyle;
-                    html += `<div class="name-cell ${nameStyle}">${p.id}</div>`;
+                    const isOver = p.hours > p.maxHours;
+
+                    html += `<div class="name-cell ${nameStyle}">
+                                ${p.id}
+                                <span class="text-[8px] opacity-50">Lim: ${p.maxHours}h</span>
+                             </div>`;
 
                     p.days.forEach((d, dIdx) => {
                         const isMidiRepos = d.midi === 'REPOS';
@@ -475,25 +614,36 @@
                         html += `<div class="grid-cell ${cellClass}">
                                     <div class="shift-editable midi-time ${isMidiRepos ? 'repos-tag' : ''}" 
                                          contenteditable="true" 
-                                         onblur="onShiftBlur(this, ${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'midi')"
-                                         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
+                                         onblur="onShiftBlur(this, ${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'midi')">
                                          ${formatDisplay(d.midi)}
                                     </div>
                                     <div class="shift-editable soir-time ${isSoirRepos ? 'repos-tag' : ''}" 
                                          contenteditable="true" 
-                                         onblur="onShiftBlur(this, ${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'soir')"
-                                         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
+                                         onblur="onShiftBlur(this, ${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'soir')">
                                          ${formatDisplay(d.soir)}
                                     </div>
                                 </div>`;
                     });
-                    html += `<div class="total-cell"><span>${p.hours}h</span></div>`;
+                    html += `<div class="total-cell"><span class="${isOver ? 'over-limit' : ''}">${p.hours}h</span></div>`;
                 });
 
                 html += `</div>`;
                 block.innerHTML = html;
                 container.appendChild(block);
             });
+        }
+
+        function setWeek(w) {
+            currentWeek = w;
+            document.getElementById('btn-w1').className = (w === 1) ? "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600" : "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
+            document.getElementById('btn-w2').className = (w === 2) ? "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600" : "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
+            renderPlanning();
+            updateCharts();
+        }
+
+        function updateTodayDate() {
+            const now = new Date();
+            document.getElementById('today-date-display').textContent = `Date du jour : ${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
         }
 
         function printDept(id) {
@@ -505,7 +655,7 @@
         function initCharts() {
             hChart = new Chart(document.getElementById('hoursChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ backgroundColor: '#ef4444', borderRadius: 4 }] },
+                data: { labels: [], datasets: [{ label: 'Heures réelles', backgroundColor: '#ef4444', borderRadius: 4 }, { label: 'Objectif', backgroundColor: '#e2e8f0', borderRadius: 4 }] },
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
             cChart = new Chart(document.getElementById('coverageChart'), {
@@ -520,6 +670,7 @@
             const all = [...data.encadrement, ...data.salle, ...data.cuisine];
             hChart.data.labels = all.map(p => p.id);
             hChart.data.datasets[0].data = all.map(p => p.hours);
+            hChart.data.datasets[1].data = all.map(p => p.maxHours);
             hChart.update();
             cChart.data.datasets[0].data = days.map((_, i) => all.filter(p => p.days[i].midi !== 'REPOS' || p.days[i].soir !== 'REPOS').length);
             cChart.update();
