@@ -523,11 +523,12 @@
                                     </button>
                                 </div>
                                 <div class="flex items-center gap-3 mt-1">
-                                    <div class="flex items-center gap-1">
-                                        <span class="text-[9px] text-gray-400 font-bold uppercase">Obj:</span>
+                                    <div class="flex items-center">
+                                        <span class="text-[9px] text-gray-400 font-bold uppercase mr-1">Obj:</span>
                                         <input type="number" value="${p.maxHours}" 
                                             onchange="updateStaffLimit('${dept}', ${idx}, this.value)"
-                                            class="w-10 bg-transparent text-[9px] font-black text-red-600 focus:outline-none focus:underline">
+                                            class="w-auto max-w-[28px] bg-transparent text-[9px] font-black text-red-600 focus:outline-none focus:underline text-right">
+                                        <span class="text-[9px] font-black text-red-600">h</span>
                                     </div>
                                     ${!isGerant ? `
                                     <button onclick="toggleAdjoint('${dept}', ${idx})" 
