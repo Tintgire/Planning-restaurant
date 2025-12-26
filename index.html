@@ -697,7 +697,20 @@
             hChart = new Chart(document.getElementById('hoursChart'), {
                 type: 'bar',
                 data: { labels: [], datasets: [{ label: 'Heures réelles', backgroundColor: '#ef4444', borderRadius: 4 }, { label: 'Objectif', backgroundColor: '#e2e8f0', borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            ticks: {
+                                autoSkip: false, // Force l'affichage de tous les noms
+                                font: { size: 9 }
+                            }
+                        }
+                    }
+                }
             });
             cChart = new Chart(document.getElementById('coverageChart'), {
                 type: 'line',
