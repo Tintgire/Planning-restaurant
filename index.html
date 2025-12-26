@@ -197,7 +197,7 @@
             text-decoration-style: wavy;
         }
 
-        /* Nouveaux styles pour l'édition de nom */
+        /* Styles pour l'édition de nom */
         .input-edit-name {
             font-size: 0.875rem;
             font-weight: bold;
@@ -300,10 +300,10 @@
                     <span>🔄</span> RÉGÉNÉRER
                 </button>
                 <button onclick="printDept('encadrement')"
-                    class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black">🖨️
+                    class="bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-2 rounded-lg text-[10px] font-black">🖨️
                     GÉRANT</button>
                 <button onclick="printDept('salle')"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-[10px] font-black">🖨️
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-[10px] font-black">🖨️
                     SALLE</button>
                 <button onclick="printDept('cuisine')"
                     class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-[10px] font-black">🖨️
@@ -463,7 +463,6 @@
             renderPlanning();
         }
 
-        // FONCTION AJOUTÉE : Modifier le nom
         function editStaffName(dept, index) {
             const nameSpan = document.getElementById(`staff-name-${dept}-${index}`);
             const currentName = staffConfig[dept][index].id;
@@ -476,9 +475,7 @@
             input.onblur = function () {
                 const newName = input.value.trim();
                 if (newName && newName !== currentName) {
-                    // Mettre à jour dans config
                     staffConfig[dept][index].id = newName;
-                    // Mettre à jour dans les données de planning pour les deux semaines
                     [1, 2].forEach(w => {
                         if (scheduleData[w][dept] && scheduleData[w][dept][index]) {
                             scheduleData[w][dept][index].id = newName;
@@ -505,8 +502,10 @@
             container.innerHTML = '';
 
             Object.keys(staffConfig).forEach(dept => {
-                const title = dept.toUpperCase();
+                // CORRECTION : "GÉRANT" au lieu de "ENCADREMENT"
+                const title = dept === 'encadrement' ? 'GÉRANT' : dept.toUpperCase();
                 const color = dept === 'cuisine' ? 'text-orange-600' : (dept === 'salle' ? 'text-green-600' : 'text-indigo-600');
+
                 let section = `<div class="pt-4 pb-2 border-b border-gray-100"><span class="text-[10px] font-black ${color}">${title}</span></div>`;
 
                 staffConfig[dept].forEach((p, idx) => {
