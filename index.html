@@ -5,12 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Del Arte - Planning & Configuration</title>
-    <!-- Chargement des bibliothèques externes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
     <style>
-        /* Style visuel original restauré */
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: #fff7ed;
@@ -86,11 +84,10 @@
         .total-cell {
             border-bottom: 2px solid #e2e8f0;
             border-right: 1px solid #cbd5e1;
-            min-height: 50px;
-            padding: 4px 8px;
+            min-height: 55px;
+            padding: 4px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             position: relative;
         }
 
@@ -132,17 +129,26 @@
         }
 
         .shift-editable {
-            width: 100%;
+            width: fit-content;
             min-height: 1.2em;
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             font-weight: 800;
             color: #1e293b;
             outline: none;
-            padding: 1px 2px;
+            padding: 1px 4px;
             transition: all 0.2s;
             cursor: text;
             white-space: nowrap;
-            overflow: hidden;
+        }
+
+        /* Positionnement spécifique : Midi en haut à gauche, Soir en bas à droite */
+        .midi-time {
+            align-self: flex-start;
+        }
+
+        .soir-time {
+            align-self: flex-end;
+            margin-top: 2px;
         }
 
         .shift-editable:focus {
@@ -151,32 +157,19 @@
             border-radius: 2px;
         }
 
-        .midi-time {
-            text-align: left;
-        }
-
-        .soir-time {
-            text-align: right;
-        }
-
         .repos-tag {
             color: #064e3b !important;
             font-style: italic !important;
             font-weight: 900 !important;
             text-transform: uppercase !important;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
         }
 
-        .full-repos {
-            background-color: #bbf7d0 !important;
-        }
-
-        .repos-midi {
-            background: linear-gradient(to right, #bbf7d0 50%, transparent 50%);
-        }
-
+        /* Remise à zéro du style de repos : Fond vert clair uni */
+        .full-repos,
+        .repos-midi,
         .repos-soir {
-            background: linear-gradient(to right, transparent 50%, #bbf7d0 50%);
+            background-color: #bbf7d0 !important;
         }
 
         .dept-title-bar {
@@ -197,7 +190,6 @@
             text-decoration-style: wavy;
         }
 
-        /* Styles pour l'édition de nom */
         .input-edit-name {
             font-size: 0.875rem;
             font-weight: bold;
@@ -285,13 +277,12 @@
         </div>
     </nav>
 
-    <!-- PAGE 1 : PLANNING -->
     <main id="planning-page" class="max-w-[1600px] mx-auto px-6 mt-6">
         <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 no-print">
             <div>
                 <h2 class="text-2xl font-black text-gray-900 tracking-tight text-red-800">Vue Opérationnelle</h2>
-                <p class="text-xs text-gray-500 font-medium mt-1">Édition directe activée. Les totaux se mettent à jour
-                    automatiquement.</p>
+                <p class="text-xs text-gray-500 font-medium mt-1">Édition directe activée (Midi en haut / Soir en bas).
+                </p>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
@@ -327,16 +318,13 @@
         </div>
     </main>
 
-    <!-- PAGE 2 : CONFIGURATION -->
     <main id="config-page" class="max-w-[1000px] mx-auto px-6 mt-8 hidden">
         <div class="mb-10">
             <h2 class="text-3xl font-black text-gray-900 tracking-tight">Configuration des Règles</h2>
-            <p class="text-sm text-gray-500 font-medium mt-1">Gérez vos équipes et les contraintes de temps de travail.
-            </p>
+            <p class="text-sm text-gray-500 font-medium mt-1">Gérez vos équipes et les statuts des adjoints.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Formulaire Ajout -->
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 h-fit">
                 <h3 class="text-lg font-black text-red-700 uppercase mb-6 flex items-center gap-2">
                     <span>👤</span> Ajouter un membre
@@ -371,7 +359,6 @@
                 </div>
             </div>
 
-            <!-- Liste et Suppression -->
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
                 <h3 class="text-lg font-black text-gray-800 uppercase mb-6 flex items-center gap-2">
                     <span>📋</span> Liste du Personnel
@@ -400,19 +387,19 @@
                 { id: 'Bouquet Alexis', role: 'adjoint', maxHours: 39 },
                 { id: 'Treuillard Déborah', role: 'adjoint', maxHours: 35 },
                 { id: 'Akbari Ibrahim', role: 'adjoint', maxHours: 35 },
-                { id: 'Moura Ana', maxHours: 24 },
-                { id: 'Picquet Zélie', maxHours: 15 },
-                { id: 'Legrand Naomie', maxHours: 20 },
-                { id: 'Arab Romaissa', maxHours: 12 },
-                { id: 'Rahmouni Cenne', maxHours: 35 }
+                { id: 'Moura Ana', role: '', maxHours: 24 },
+                { id: 'Picquet Zélie', role: '', maxHours: 15 },
+                { id: 'Legrand Naomie', role: '', maxHours: 20 },
+                { id: 'Arab Romaissa', role: '', maxHours: 12 },
+                { id: 'Rahmouni Cenne', role: '', maxHours: 35 }
             ],
             cuisine: [
-                { id: 'Kebe Mahamadou', maxHours: 35 },
-                { id: 'Nazari Mojtaba', maxHours: 35 },
-                { id: 'Faieq Hussain', maxHours: 35 },
-                { id: 'Gory Mahamadou', maxHours: 35 },
-                { id: 'Khan Sidra', maxHours: 25 },
-                { id: 'Daniel Corentin', maxHours: 35 }
+                { id: 'Kebe Mahamadou', role: '', maxHours: 35 },
+                { id: 'Nazari Mojtaba', role: '', maxHours: 35 },
+                { id: 'Faieq Hussain', role: '', maxHours: 35 },
+                { id: 'Gory Mahamadou', role: '', maxHours: 35 },
+                { id: 'Khan Sidra', role: '', maxHours: 25 },
+                { id: 'Daniel Corentin', role: '', maxHours: 35 }
             ]
         };
 
@@ -438,7 +425,22 @@
             }
         }
 
-        // --- GESTION DU PERSONNEL ---
+        function toggleAdjoint(dept, index) {
+            const person = staffConfig[dept][index];
+            if (person.role === 'gerant') return;
+
+            person.role = person.role === 'adjoint' ? '' : 'adjoint';
+
+            [1, 2].forEach(w => {
+                if (scheduleData[w][dept] && scheduleData[w][dept][index]) {
+                    scheduleData[w][dept][index].role = person.role;
+                }
+            });
+
+            renderConfigList();
+            renderPlanning();
+            updateCharts();
+        }
 
         function addStaff() {
             const name = document.getElementById('new-name').value.trim();
@@ -502,28 +504,36 @@
             container.innerHTML = '';
 
             Object.keys(staffConfig).forEach(dept => {
-                // CORRECTION : "GÉRANT" au lieu de "ENCADREMENT"
                 const title = dept === 'encadrement' ? 'GÉRANT' : dept.toUpperCase();
                 const color = dept === 'cuisine' ? 'text-orange-600' : (dept === 'salle' ? 'text-green-600' : 'text-indigo-600');
 
                 let section = `<div class="pt-4 pb-2 border-b border-gray-100"><span class="text-[10px] font-black ${color}">${title}</span></div>`;
 
                 staffConfig[dept].forEach((p, idx) => {
+                    const isAdjoint = p.role === 'adjoint';
+                    const isGerant = p.role === 'gerant';
+
                     section += `
                         <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100 group">
                             <div class="flex flex-col flex-1">
                                 <div class="flex items-center gap-2">
-                                    <span id="staff-name-${dept}-${idx}" class="text-sm font-bold text-gray-800">${p.id}</span>
+                                    <span id="staff-name-${dept}-${idx}" class="text-sm font-bold ${isAdjoint ? 'text-blue-600' : (isGerant ? 'text-indigo-800' : 'text-gray-800')}">${p.id}</span>
                                     <button onclick="editStaffName('${dept}', ${idx})" class="text-gray-400 hover:text-blue-600 text-xs opacity-0 group-hover:opacity-100 transition-all">
                                         ✏️
                                     </button>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[9px] text-gray-400 font-bold uppercase">Objectif :</span>
-                                    <input type="number" value="${p.maxHours}" 
-                                        onchange="updateStaffLimit('${dept}', ${idx}, this.value)"
-                                        class="w-12 bg-transparent text-[9px] font-black text-red-600 focus:outline-none focus:underline">
-                                    <span class="text-[9px] text-gray-400 font-bold uppercase">h</span>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-[9px] text-gray-400 font-bold uppercase">Obj:</span>
+                                        <input type="number" value="${p.maxHours}" 
+                                            onchange="updateStaffLimit('${dept}', ${idx}, this.value)"
+                                            class="w-10 bg-transparent text-[9px] font-black text-red-600 focus:outline-none focus:underline">
+                                    </div>
+                                    ${!isGerant ? `
+                                    <button onclick="toggleAdjoint('${dept}', ${idx})" 
+                                        class="text-[9px] font-black px-2 py-0.5 rounded uppercase transition-all ${isAdjoint ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'}">
+                                        ${isAdjoint ? '⭐ ADJOINT' : 'Standard'}
+                                    </button>` : ''}
                                 </div>
                             </div>
                             <button onclick="removeStaff('${dept}', ${idx})" class="opacity-0 group-hover:opacity-100 bg-gray-200 hover:bg-red-100 hover:text-red-600 p-2 rounded-md transition-all">
@@ -535,8 +545,6 @@
                 container.innerHTML += section;
             });
         }
-
-        // --- LOGIQUE PLANNING ---
 
         function formatDisplay(text) {
             if (!text) return "";
@@ -638,7 +646,7 @@
 
                 if (data[conf.id]) {
                     data[conf.id].forEach((p, pIdx) => {
-                        const nameStyle = p.role === 'adjoint' ? 'name-cell-adjoint' : conf.nameStyle;
+                        const nameStyle = p.role === 'adjoint' ? 'name-cell-adjoint' : (p.role === 'gerant' ? 'name-cell-gerant' : conf.nameStyle);
                         const isOver = p.hours > p.maxHours;
 
                         html += `<div class="name-cell ${nameStyle}">
@@ -649,7 +657,8 @@
                         p.days.forEach((d, dIdx) => {
                             const isMidiRepos = d.midi === 'REPOS';
                             const isSoirRepos = d.soir === 'REPOS';
-                            let cellClass = (isMidiRepos && isSoirRepos) ? 'full-repos' : (isMidiRepos ? 'repos-midi' : (isSoirRepos ? 'repos-soir' : ''));
+                            // La cellule devient verte si le midi OU le soir est en REPOS
+                            let cellClass = (isMidiRepos || isSoirRepos) ? 'full-repos' : '';
 
                             html += `<div class="grid-cell ${cellClass}">
                                         <div class="shift-editable midi-time ${isMidiRepos ? 'repos-tag' : ''}" 
@@ -705,7 +714,7 @@
                     scales: {
                         y: {
                             ticks: {
-                                autoSkip: false, // Force l'affichage de tous les noms
+                                autoSkip: false,
                                 font: { size: 9 }
                             }
                         }
