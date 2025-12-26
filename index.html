@@ -112,26 +112,34 @@
             border-right: none;
         }
 
-        /* Style des inputs "invisibles" pour le mode édition */
-        .shift-input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            font-size: 0.6rem;
-            font-weight: 800;
-            line-height: 1;
-            color: #1e293b;
-            padding: 0;
-            margin: 0;
-            cursor: pointer;
-            transition: all 0.2s;
+        /* Style pour le badge 09h45 */
+        .highlight-time {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+            display: inline-block;
         }
 
-        .shift-input:focus {
+        .shift-editable {
+            width: 100%;
+            min-height: 1.2em;
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: #1e293b;
+            outline: none;
+            padding: 1px 2px;
+            transition: all 0.2s;
+            cursor: text;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .shift-editable:focus {
             background: white;
-            outline: 2px solid #ef4444;
+            box-shadow: inset 0 0 0 2px #ef4444;
             border-radius: 2px;
-            color: black;
         }
 
         .midi-time {
@@ -205,16 +213,18 @@
                 display: block !important;
             }
 
-            .shift-input {
-                color: black !important;
-                border: none !important;
-            }
-
             .full-repos,
             .repos-midi,
             .repos-soir {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+            }
+
+            .highlight-time {
+                background-color: #1e3a8a !important;
+                color: white !important;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact;
             }
         }
     </style>
@@ -270,7 +280,6 @@
 
         <div id="planning-sections"></div>
 
-        <!-- Graphiques -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 charts-container">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h3 class="text-xs font-black text-gray-400 uppercase mb-4">Volume Horaire Hebdomadaire</h3>
@@ -295,21 +304,23 @@
         let scheduleData = { 1: {}, 2: {} };
         let hChart, cChart;
 
-
         /**
-         * Calcule la durée. Supporte désormais le format décimal "10.75h" ou "10.75"
+         * Affiche en bleu foncé le texte "09h45"
          */
+        function formatDisplay(text) {
+            if (!text) return "";
+            const target = "09h45";
+            if (text.toLowerCase().includes(target)) {
+                return text.replace(new RegExp(target, 'gi'), `<span class="highlight-time">${target}</span>`);
+            }
+            return text;
+        }
+
         function calculateDuration(shiftStr) {
             if (!shiftStr || shiftStr.toUpperCase().includes('REPOS')) return 0;
-
             const cleanStr = shiftStr.toLowerCase().replace('h', '').trim();
+            if (!cleanStr.includes('-') && !isNaN(parseFloat(cleanStr))) return parseFloat(cleanStr);
 
-            // Cas 1 : Saisie décimale (ex: "10.75")
-            if (!cleanStr.includes('-') && !isNaN(parseFloat(cleanStr))) {
-                return parseFloat(cleanStr);
-            }
-
-            // Cas 2 : Format plage horaire (ex: "11h-14h30")
             const parts = shiftStr.toLowerCase().split('-').map(p => p.trim());
             if (parts.length !== 2) return 0;
 
@@ -341,14 +352,22 @@
                 total += calculateDuration(day.midi);
                 total += calculateDuration(day.soir);
             });
-            // Arrondi à 2 décimales pour éviter les erreurs de calcul flottant
             return Math.round(total * 100) / 100;
         }
 
-        function updateShiftValue(week, dept, personIndex, dayIndex, part, newValue) {
-            const val = newValue.trim().toUpperCase();
+        /**
+         * Gestionnaire de modification d'un horaire
+         */
+        function onShiftBlur(el, week, dept, personIndex, dayIndex, part) {
+            const newValue = el.textContent.trim();
             const person = scheduleData[week][dept][personIndex];
-            person.days[dayIndex][part] = val;
+
+            if (newValue.toUpperCase() === "REPOS") {
+                person.days[dayIndex][part] = "REPOS";
+            } else {
+                person.days[dayIndex][part] = newValue;
+            }
+
             person.hours = calculateWeeklyTotal(person);
             renderPlanning();
             updateCharts();
@@ -358,23 +377,15 @@
             currentWeek = w;
             const btn1 = document.getElementById('btn-w1');
             const btn2 = document.getElementById('btn-w2');
-            if (w === 1) {
-                btn1.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600";
-                btn2.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
-            } else {
-                btn2.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600";
-                btn1.className = "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
-            }
+            btn1.className = (w === 1) ? "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600" : "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
+            btn2.className = (w === 2) ? "px-4 py-1.5 rounded-md text-xs font-black transition-all shadow-sm bg-white text-red-600" : "px-4 py-1.5 rounded-md text-xs font-black transition-all text-gray-400 hover:text-gray-600";
             renderPlanning();
             updateCharts();
         }
 
         function updateTodayDate() {
             const now = new Date();
-            const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear();
-            document.getElementById('today-date-display').textContent = `Date du jour : ${day}/${month}/${year}`;
+            document.getElementById('today-date-display').textContent = `Date du jour : ${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
         }
 
         function generateNewCycle() {
@@ -397,8 +408,7 @@
                         const person = {
                             ...p,
                             days: days.map(() => {
-                                const isRepos = Math.random() > 0.7;
-                                if (isRepos) return { midi: 'REPOS', soir: 'REPOS' };
+                                if (Math.random() > 0.75) return { midi: 'REPOS', soir: 'REPOS' };
                                 const opts = shiftPatterns[p.role === 'adjoint' ? 'salle' : dept];
                                 const pick = opts[Math.floor(Math.random() * opts.length)];
                                 return { midi: pick.m, soir: pick.s };
@@ -441,13 +451,19 @@
                         let cellClass = (isMidiRepos && isSoirRepos) ? 'full-repos' : (isMidiRepos ? 'repos-midi' : (isSoirRepos ? 'repos-soir' : ''));
 
                         html += `<div class="grid-cell ${cellClass}">
-                                <input class="shift-input midi-time ${isMidiRepos ? 'repos-tag' : ''}" 
-                                       value="${d.midi}" 
-                                       onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'midi', this.value)">
-                                <input class="shift-input soir-time ${isSoirRepos ? 'repos-tag' : ''}" 
-                                       value="${d.soir}" 
-                                       onchange="updateShiftValue(${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'soir', this.value)">
-                            </div>`;
+                                    <div class="shift-editable midi-time ${isMidiRepos ? 'repos-tag' : ''}" 
+                                         contenteditable="true" 
+                                         onblur="onShiftBlur(this, ${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'midi')"
+                                         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
+                                         ${formatDisplay(d.midi)}
+                                    </div>
+                                    <div class="shift-editable soir-time ${isSoirRepos ? 'repos-tag' : ''}" 
+                                         contenteditable="true" 
+                                         onblur="onShiftBlur(this, ${currentWeek}, '${conf.id}', ${pIdx}, ${dIdx}, 'soir')"
+                                         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
+                                         ${formatDisplay(d.soir)}
+                                    </div>
+                                </div>`;
                     });
                     html += `<div class="total-cell"><span>${p.hours}h</span></div>`;
                 });
@@ -487,11 +503,7 @@
             cChart.update();
         }
 
-        window.onload = () => {
-            updateTodayDate();
-            initCharts();
-            generateNewCycle();
-        };
+        window.onload = () => { updateTodayDate(); initCharts(); generateNewCycle(); };
     </script>
 </body>
 
